@@ -21,6 +21,7 @@ import React, {useEffect, useState} from "react";
 import type {PostItem} from "../store/slices/post/types";
 import {formatNumber} from "../utils/helpers";
 import AvatarPost from "./AvatarPost";
+import FloatingHearts from "./FloatingHearts";
 
 // Like button animation keyframes
 const globalBounce = keyframes`
@@ -64,13 +65,13 @@ interface PostProps {
   post: PostItem;
 }
 
-type ArrowProps = {
+interface ArrowProps {
   className?: string;
   style?: React.CSSProperties;
   currentSlide?: number;
   slideCount?: number;
   onClick?: () => void;
-};
+}
 
 const PrevArrow = ({
   className,
@@ -134,7 +135,8 @@ const NextArrow = ({
 const Post: React.FC<PostProps> = ({post}) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [animateLike, setAnimateLike] = useState(false);
+  const [isAnimateLike, setIsAnimateLike] = useState(false);
+  const [isAnimateDoubleLike, setIsAnimateDoubleLiked] = useState(false);
   const [animateSave, setAnimateSave] = useState(false);
 
   useEffect(() => {
@@ -148,11 +150,19 @@ const Post: React.FC<PostProps> = ({post}) => {
   }, [post?.reactions?.likes]);
 
   const handleLike = () => {
-    setAnimateLike(true);
+    setIsAnimateLike(true);
     setIsLiked(!isLiked);
     // Reset animation after it completes
-    setTimeout(() => setAnimateLike(false), 500);
+    setTimeout(() => setIsAnimateLike(false), 500);
   };
+
+  const handleDoubleLike = (isLike?: boolean) => {
+    setIsAnimateDoubleLiked(true);
+    setIsLiked(isLike !== undefined ? isLike : !isLiked);
+    // Reset animation after it completes
+    setTimeout(() => setIsAnimateDoubleLiked(false), 500);
+  };
+
   const handleSave = () => {
     setAnimateSave(true);
     setIsSaved(!isSaved);
@@ -227,7 +237,7 @@ const Post: React.FC<PostProps> = ({post}) => {
               >
                 <CardMedia
                   onDoubleClick={() => {
-                    handleLike();
+                    handleDoubleLike(true);
                   }}
                   component="img"
                   height="500"
@@ -240,24 +250,10 @@ const Post: React.FC<PostProps> = ({post}) => {
                     height: "100%",
                   }}
                 />
+                <FloatingHearts isActive={isAnimateDoubleLike} />
               </Box>
             ))}
           </Carousel>
-          {/* <CardMedia
-            onDoubleClick={() => {
-              handleLike();
-            }}
-            component="img"
-            height="500"
-            image={post?.imagePost?.[0]}
-            alt="Post"
-            sx={{
-              objectFit: "cover",
-              aspectRatio: "1 / 1",
-              width: "100%",
-              height: "100%",
-            }}
-          /> */}
         </>
       ) : (
         <Box sx={{position: "relative"}}>
@@ -280,22 +276,32 @@ const Post: React.FC<PostProps> = ({post}) => {
               }}
             />
           </Box>
-          <CardMedia
-            onDoubleClick={() => {
-              handleLike();
-            }}
-            component="img"
-            height="500"
-            image={post?.imageVDO}
-            alt="Post"
+          <Box
             sx={{
-              objectFit: "cover",
-              aspectRatio: "1 / 1",
-              width: "100%",
-              height: "100%",
-              borderRadius: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              position: "relative",
             }}
-          />
+          >
+            <CardMedia
+              onDoubleClick={() => {
+                handleDoubleLike(true);
+              }}
+              component="img"
+              height="500"
+              image={post?.imageVDO}
+              alt="Post"
+              sx={{
+                objectFit: "cover",
+                aspectRatio: "1 / 1",
+                width: "100%",
+                height: "100%",
+                borderRadius: 1,
+              }}
+            />
+            <FloatingHearts isActive={isAnimateDoubleLike} />
+          </Box>
         </Box>
       )}
 
@@ -311,7 +317,7 @@ const Post: React.FC<PostProps> = ({post}) => {
                 sx={{
                   color: isLiked ? "#ef4444" : "#ffffff",
                   transition: "color 0.2s ease",
-                  animation: animateLike
+                  animation: isAnimateLike
                     ? `${globalBounce} 0.5s ease-in-out`
                     : "none",
                   ":hover, :focus, :focus-visible": {
