@@ -6,6 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue?style=flat-square)
 ![Redux](https://img.shields.io/badge/Redux-Toolkit-purple?style=flat-square)
 ![Material-UI](https://img.shields.io/badge/Material--UI-7.3+-cyan?style=flat-square)
+![Vite](https://img.shields.io/badge/Vite-7.2+-green?style=flat-square)
 
 ## 📋 สารบัญ
 
@@ -14,19 +15,21 @@
 - [📁 โครงสร้างโปรเจค](#-โครงสร้างโปรเจค)
 - [🚀 การติดตั้ง](#-การติดตั้ง)
 - [💻 คำสั่งที่ใช้งาน](#-คำสั่งที่ใช้งาน)
+- [🏗️ Architecture](#-architecture)
+- [📚 Best Practices](#-best-practices)
 
 ## ✨ คุณสมบัติ
 
 - 🔐 **Authentication** - Login & Register
 - 📰 **Feed** - ดูโพสต์จากผู้ติดตาม
-- ❤️ **Like/Unlike** - ชื่นชอบโพสต์
+- ❤️ **Like/Unlike** - ชื่นชอบโพสต์พร้อมแอนิเมชัน
 - 👤 **Profile** - ดูโปรไฟล์ผู้ใช้
 - 👥 **Follow/Unfollow** - ติดตามผู้ใช้
 - 🔍 **Search** - ค้นหาผู้ใช้
-- 💬 **Notifications** - notifications system
+- 💬 **Notifications** - ระบบการแจ้งเตือน
 - 📱 **Responsive Design** - ทำงานได้บนทุกอุปกรณ์
-- 📲 **Mobile Navigation** - navigation bar สำหรับมือถือ
 - 🎨 **Modern UI** - Material-UI components
+- ⚡ **High Performance** - Optimized with React.memo & useMemo
 
 ## 🛠️ เทคโนโลยี
 
@@ -35,10 +38,9 @@
 - **TypeScript 5.9** - Type Safety
 - **Redux Toolkit 2.11** - State Management
 - **React Redux 9.2** - Redux Bindings
-- **React Router v7.12** - Routing
+- **React Router v7.12** - Client-side Routing
 - **Material-UI 7.3** - Component Library
 - **Axios 1.13** - HTTP Client
-- **Ant Design 6.1** - UI Components
 - **Vite 7.2** - Build Tool & Dev Server
 - **ESLint 9.39** - Code Quality
 
@@ -48,21 +50,15 @@
 src/
 ├── components/              # Reusable Components
 │   ├── SideBar.tsx          # Navigation sidebar
-│   ├── Post.tsx             # Individual post component
+│   ├── Post.tsx             # Individual post component with animation
 │   ├── PostItem.tsx         # Post item in feed
-│   ├── Feed.tsx             # Feed container
 │   ├── Login.tsx            # Login page
 │   ├── Register.tsx         # Register page
 │   ├── LayoutContain.tsx    # Layout container
-│   ├── SearchContain.tsx    # Search modal container
 │   ├── SearchBar.tsx        # Search bar component
-│   ├── NotificationsContain.tsx  # Notifications modal
-│   ├── MessageContain.tsx   # Messages container
 │   ├── StorySlide.tsx       # Story slider
-│   ├── AvatarUI.tsx         # Avatar UI component
 │   ├── AvatarPost.tsx       # Avatar in post
-│   ├── AvatarStory.tsx      # Avatar in story
-│   ├── AvatarContain.tsx    # Avatar container
+│   ├── Loading.tsx          # Loading component
 │   └── Responsive.tsx       # Responsive helper
 ├── pages/                   # Page Components
 │   ├── Home.tsx             # Home page with feed
@@ -73,11 +69,21 @@ src/
 ├── store/                   # Redux Store
 │   ├── index.ts             # Store configuration
 │   └── slices/
-│       ├── auth/            # Auth state (modular structure)
-│       │   ├── index.ts     # Auth slice export
-│       │   ├── types.ts     # Auth types & interfaces
-│       │   ├── initialState.ts # Initial auth state
-│       │   └── thunks.ts    # Auth async thunks
+│       ├── auth/            # Auth slice
+│       │   ├── index.ts
+│       │   ├── types.ts
+│       │   ├── initialState.ts
+│       │   └── thunks.ts
+│       ├── post/            # Post slice
+│       │   ├── index.ts
+│       │   ├── types.ts
+│       │   ├── initialState.ts
+│       │   └── thunks.ts
+│       └── user/            # User slice
+│           ├── index.ts
+│           ├── types.ts
+│           ├── initialState.ts
+│           └── thunks.ts
 ├── services/                # API Services
 │   └── api.ts               # Axios instance & API calls
 ├── types/                   # TypeScript Types
@@ -94,8 +100,7 @@ src/
 ├── App.tsx                  # Root component
 ├── App.css                  # App styles
 ├── main.tsx                 # Entry point
-├── index.css                # Global styles
-└── vite.config.ts           # Vite configuration
+└── index.css                # Global styles
 ```
 
 ## 🚀 การติดตั้ง
@@ -116,8 +121,9 @@ npm install
 # หรือ
 yarn install
 
-# 3. ตั้งค่า environment variables (ถ้าจำเป็น)
-echo "VITE_API_URL=http://localhost:3000/api/v1" > .env
+# 3. ตั้งค่า environment variables
+cp .env.example .env
+# แล้วแก้ไขตามที่จำเป็น
 
 # 4. เริ่มต้น development server
 npm run dev
@@ -130,28 +136,18 @@ Development server จะเริ่มที่ `http://localhost:5173`
 ## 💻 คำสั่งที่ใช้งาน
 
 ```bash
-npm run dev      # เริ่ม development server
-npm run build    # สร้าง production build
-npm run preview  # ดูตัวอย่าง production build
-npm run lint     # ตรวจสอบโค้ด
+# Development
+npm run dev          # เริ่ม development server
+
+# Build & Preview
+npm run build        # สร้าง production build
+npm run preview      # ดูตัวอย่าง production build
+
+# Code Quality
+npm run lint         # ตรวจสอบโค้ด
 ```
 
 ## 🏗️ Architecture
-
-### Component Tree
-```
-App (Redux Provider)
-├── Router
-│   ├── SideBar (Navigation)
-│   └── Routes
-│       ├── Home (Feed → PostItem[])
-│       ├── Profile
-│       ├── Explore
-│       ├── Messages
-│       ├── Notifications
-│       ├── Login
-│       └── Register
-```
 
 ### Redux State Structure
 ```
@@ -162,12 +158,13 @@ Store
 │   ├── status: 'idle' | 'pending' | 'success' | 'error'
 │   ├── error: string | null
 │   └── isAuthenticated: boolean
+│
 ├── posts
 │   ├── feed: Post[]
-│   ├── userPosts: Post[]
 │   ├── status: 'idle' | 'pending' | 'success' | 'error'
 │   ├── error: string | null
-│   └── pagination: { page, limit, hasMore, total }
+│   └── pagination: { skip, limit, hasMore }
+│
 └── user
     ├── currentProfile: User | null
     ├── searchResults: User[]
@@ -175,98 +172,50 @@ Store
     └── error: string | null
 ```
 
-## 📝 Type Definitions
-
-```typescript
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  profileImage?: string;
-  bio?: string;
-  followersCount: number;
-  followingCount: number;
-  postsCount: number;
-  isFollowing?: boolean;
-}
-
-interface Post {
-  id: string;
-  userId: string;
-  author: User;
-  caption: string;
-  images: string[];
-  likes: number;
-  comments: number;
-  isLiked: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Comment {
-  id: string;
-  postId: string;
-  userId: string;
-  author: User;
-  content: string;
-  likes: number;
-  isLiked: boolean;
-  createdAt: string;
-}
+### Component Structure
 ```
+App (Redux Provider)
+├── Router
+│   ├── SideBar (Navigation)
+│   └── Routes
+│       ├── Home (Feed with infinite scroll)
+│       ├── Profile (User profile)
+│       ├── Explore (Discover posts)
+│       ├── Messages (Direct messages)
+│       ├── Notifications (Activity feed)
+│       ├── Login
+│       └── Register
+```
+
+## 📝 Features Details
+
+### Like Animation
+- Keyframe-based heart beat animation เมื่อคลิกปุ่ม like
+- Smooth color transition from white to red
+- 500ms animation duration
+
+### Infinite Scroll
+- Auto-load posts เมื่อเลื่อนถึงด้านล่าง
+- Pagination support with skip/limit
+
+### Responsive Design
+- Mobile-first approach
+- Adaptive layouts for all screen sizes
+- Touch-friendly UI
 
 ## 🎨 Design System
 
 ### Color Palette
-- **Primary Blue**: `#86A1FF` - Main actions, buttons, links
+- **Primary**: `#86A1FF` - Main actions
 - **Dark Blue**: `#0b6fbf` - Hover states
-- **Like Red**: `#ed4956` - Liked/favorite state
-- **Dark Gray**: `#8e8e8e` - Secondary text
-- **Border Gray**: `#262626` - Borders, dividers
-- **Light Gray**: `#f0f0f0` - Input backgrounds
-- **Page Background**: `#fafafa`
+- **Like Red**: `#ed4956` - Liked state
 - **Text**: `#000000`
-- **White**: `#ffffff`
+- **Background**: `#fafafa`
 
 ### Typography
-- **Font Family**: System fonts (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto)
-- **Base Font Size**: 14px
-- **Heading Sizes**: 24px - 32px
-- **Font Weights**: 400 (normal), 600 (semi-bold), 700 (bold)
-
-## 🔐 Authentication Flow
-
-```
-1. User submits login/register form
-   ↓
-2. Dispatch loginUser/registerUser thunk
-   ↓
-3. API call to /auth/login or /auth/register
-   ↓
-4. Token stored in localStorage & Redux state
-   ↓
-5. Auto-redirect to home page
-   ↓
-6. Auth token sent in all subsequent requests via interceptor
-```
-
-## 🏗️ Modular Structure
-
-The auth slice is organized modularly for better maintainability:
-
-```
-src/store/slices/auth/
-├── index.ts           # Slice definition & exports
-├── types.ts          # TypeScript interfaces & types
-├── initialState.ts   # Initial state configuration
-└── thunks.ts         # Async thunks (API calls)
-```
-
-This approach allows:
-- Easy scaling and maintenance
-- Reusable type definitions across the app
-- Clear separation of concerns
-- Better code organization
+- **Font Family**: System fonts
+- **Base Size**: 14px
+- **Weights**: 400, 600, 700
 
 ## 📦 Dependencies
 
@@ -282,20 +231,46 @@ This approach allows:
 | axios | ^1.13.2 | HTTP Client |
 | typescript | ~5.9.3 | Type Checking |
 
-## 📲 Responsive Breakpoints
+## 📚 Best Practices
 
-- **Mobile**: 0px - 767px
-- **Tablet**: 768px - 1023px
-- **Desktop**: 1024px and above
+✅ **Components**
+- Keep components focused and single-responsibility
+- Use React.memo for performance optimization
+- Document with JSDoc comments
 
-Mobile navigation is hidden on desktop, and sidebar layout changes for mobile devices.
+✅ **State Management**
+- Use Redux Toolkit for global state
+- Keep local component state minimal
+- Handle errors gracefully
+
+✅ **TypeScript**
+- Define all types in dedicated files
+- Avoid `any` type
+- Export reusable types
+
+✅ **Styling**
+- Use Material-UI theming
+- Mobile-first responsive design
+- Consistent color palette
+
+✅ **Code Organization**
+- Modular folder structure
+- Clear separation of concerns
+- Meaningful file names
+
+## 🔧 Configuration
+
+### Environment Variables
+```env
+VITE_API_URL=https://dummyjson.com
+```
+
+### Vite Config
+- Optimized for production builds
+- Dev server with HMR enabled
+- TypeScript support enabled
 
 ## 🐛 Troubleshooting
-
-### Node modules not found
-```bash
-npm install
-```
 
 ### Port Already in Use
 ```bash
@@ -308,78 +283,43 @@ rm -rf node_modules .vite dist
 npm install
 ```
 
-### TypeScript Errors
+### Build Errors
 ```bash
-tsc -b
+npm run lint        # Check for linting errors
+tsc -b              # Check TypeScript errors
 ```
-
-### CORS Errors
-- Check API server CORS settings
-- Verify `VITE_API_URL` in `.env`
-
-## 📚 Best Practices
-
-✅ **Components**
-- Keep components focused and single-responsibility
-- Use React.memo for performance optimization
-- Lift state up when multiple components need it
-- Properly document components with JSDoc comments
-
-✅ **State Management**
-- Use Redux Toolkit for global state
-- Keep local component state minimal
-- Write pure reducer functions
-- Use async thunks for API calls with error handling
-
-✅ **TypeScript**
-- Define all types in `types/index.ts`
-- Use interfaces for object types
-- Avoid `any` type
-- Export reusable types from dedicated files
-
-✅ **API Integration**
-- Centralize API calls in `services/api.ts`
-- Use axios interceptors for auth tokens
-- Handle errors and loading states gracefully
-- Provide meaningful error messages
-
-✅ **Code Organization**
-- Modular folder structure (auth/, slices/, etc.)
-- Separation of concerns
-- Reusable utilities and helpers
-- Clear import paths and file organization
-
-✅ **Styling**
-- Use Material-UI components and theming
-- Keep component-specific styles organized
-- Mobile-first responsive design
-- Consistent color palette and typography
 
 ## 🚀 Future Enhancements
 
-- [ ] Comments system
-- [ ] Direct messaging with real-time updates
-- [ ] Stories feature
-- [ ] Image optimization and compression
+- [ ] Real-time notifications with WebSocket
+- [ ] Image upload and compression
 - [ ] Dark mode support
-- [ ] Advanced search filters
+- [ ] Comments system
+- [ ] Direct messaging
+- [ ] Stories feature
 - [ ] User recommendations
-- [ ] Analytics dashboard
+- [ ] Advanced search filters
 
 ## 📄 License
 
-MIT License - ใช้งานได้อย่างอิสระสำหรับการใช้งานส่วนตัวและเชิงพาณิชย์
+MIT License - ใช้งานได้อย่างอิสระ
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
 5. Open a Pull Request
+
+## 📞 Support
+
+For issues or questions, please open an issue on GitHub.
 
 ---
 
 **Built with ❤️ using React, TypeScript, and Redux**
 
-For questions or issues, please open an issue on GitHub.
+**Links:**
+- GitHub: https://github.com/bussakorn033/instagram
+- Demo: https://instagram-webapp.vercel.app/

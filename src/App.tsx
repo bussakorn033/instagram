@@ -1,29 +1,30 @@
-import React, {useEffect} from "react";
+import { Box, CircularProgress, CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import React, { useEffect } from "react";
+import { Provider } from "react-redux";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
+  useLocation,
 } from "react-router-dom";
-import {Provider} from "react-redux";
-import {ThemeProvider} from "@mui/material/styles";
-import {CssBaseline, Box, CircularProgress} from "@mui/material";
-import {store} from "./store";
-import {useAppDispatch, useAppSelector} from "./hooks";
-import {theme} from "./theme/theme";
+import { useAppSelector } from "./hooks";
+import { store } from "./store";
+import { theme } from "./theme/theme";
 
 // Components
-import Sidebar from "./components/SideBar";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Sidebar from "./components/SideBar";
 
 // Pages
-import Home from "./pages/Home";
-import Profile from "./pages/Profile";
-import Explore from "./pages/Explore";
-import Notifications from "./pages/Notifications";
-import Messages from "./pages/Messages";
 import MessageContain from "./components/MessageContain";
+import Explore from "./pages/Explore";
+import Home from "./pages/Home";
+import Messages from "./pages/Messages";
+import Notifications from "./pages/Notifications";
+import Profile from "./pages/Profile";
 
 // Protected Route Component
 interface ProtectedRouteProps {
@@ -40,14 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
 // Main App Component
 const AppContent: React.FC = () => {
-  const dispatch = useAppDispatch();
   const {isAuthenticated, status} = useAppSelector((state) => state.auth);
-
-  useEffect(() => {
-    // Try to fetch current user on app load
-    if (localStorage.getItem("authToken")) {
-    }
-  }, [dispatch]);
 
   if (status === "loading") {
     return (
@@ -62,86 +56,92 @@ const AppContent: React.FC = () => {
     );
   }
 
+  return <AppRoutes isAuthenticated={isAuthenticated} />;
+};
+
+// Routes Component (inside Router)
+const AppRoutes: React.FC<{isAuthenticated: boolean}> = ({isAuthenticated}) => {
+  const {pathname} = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
-    <Router>
+    <Box
+      sx={{
+        position: "relative",
+        display: "flex",
+        width: "100%",
+        height: "100%",
+        "@media (max-width: 767px)": {
+          flexDirection: "column-reverse",
+        },
+      }}
+    >
+      {isAuthenticated && <Sidebar />}
       <Box
         sx={{
-          position: "relative",
-          display: "flex",
           width: "100%",
-          height: "100%",
-          "@media (max-width: 767px)": {
-            flexDirection: "column-reverse",
-          },
+          minHeight: "100vh",
+          overflowX: "hidden",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        {isAuthenticated && <Sidebar />}
-        <Box
-          sx={{
-            width: "100%",
-            minHeight: "100vh",
-            overflowY: "auto",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            // "@media (max-width: 767px)": {
-            //   minHeight: "calc(100vh - 48px)",
-            // },
-          }}
-        >
-          <MessageContain />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+        <MessageContain />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-            {/* Protected Routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/explore"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Explore />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/notifications"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Notifications />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/messages"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile/:userId"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/explore"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Explore />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Notifications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:userId"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Catch all */}
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Box>
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </Box>
-    </Router>
+    </Box>
   );
 };
 
@@ -150,7 +150,9 @@ const App: React.FC = () => {
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AppContent />
+        <Router>
+          <AppContent />
+        </Router>
       </ThemeProvider>
     </Provider>
   );

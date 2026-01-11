@@ -2,6 +2,8 @@
 export const APP_NAME = "Instagram Clone";
 export const APP_VERSION = "1.0.0";
 
+export const USER_ID = 6;
+
 // Image Constraints
 export const MAX_IMAGE_SIZE = 5242880; // 5MB
 export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -42,3 +44,11 @@ export const ROUTES = {
   REGISTER: "/register",
   NOT_FOUND: "/404",
 };
+
+export const ACTIONS_POST = [
+  "liked your reel",
+  "liked your post",
+  "liked your comment",
+  "commented",
+  "start following",
+];

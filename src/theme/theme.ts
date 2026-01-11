@@ -25,7 +25,6 @@ export const theme = createTheme({
     },
     background: {
       default: "#0B1013",
-      //   default: "#fafafa",
       paper: "transparent",
     },
     text: {
@@ -137,6 +136,7 @@ export const theme = createTheme({
     MuiTextField: {
       styleOverrides: {
         root: {
+          fontSize: "16px",
           "& .MuiOutlinedInput-root": {
             borderRadius: 4,
             backgroundColor: "#fafafa",
@@ -154,7 +154,7 @@ export const theme = createTheme({
           },
           "& .MuiOutlinedInput-input": {
             padding: "12px 14px",
-            fontSize: "0.875rem",
+            fontSize: "16px",
             "&::placeholder": {
               color: "#a0a0a0",
               opacity: 1,
@@ -189,8 +189,6 @@ export const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          //     backgroundColor: "#ffffff",
-          //   color: "#0B1013",
           backgroundColor: "#0B1013",
           color: "#ffffff",
           boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
