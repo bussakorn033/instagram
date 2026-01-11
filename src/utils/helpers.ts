@@ -25,20 +25,23 @@ export const formatRelativeTime = (date: string): string => {
  * Format number to shortened format (e.g., 1.5K, 2.3M)
  */
 export const formatNumber = (num: number = 0): string => {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + "M";
+  const isNegative = num < 0;
+  const absNum = Math.abs(num);
+
+  if (absNum >= 1000000) {
+    return (isNegative ? "-" : "") + (absNum / 1000000).toFixed(1) + "M";
   }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "K";
+  if (absNum >= 1000) {
+    return (isNegative ? "-" : "") + (absNum / 1000).toFixed(1) + "K";
   }
-  return num?.toString();
+  return (isNegative ? "-" : "") + absNum.toString();
 };
 
 /**
  * Validate email format
  */
 export const validateEmail = (email: string): boolean => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9.-]+$/;
   return regex.test(email);
 };
 
@@ -46,14 +49,18 @@ export const validateEmail = (email: string): boolean => {
  * Validate password strength
  */
 export const validatePassword = (password: string): boolean => {
-  return password.length >= 8;
+  if (password.length < 8) return false;
+  // Reject if space has non-space characters on both sides
+  const trimmed = password.trim();
+  return !trimmed.includes(" ");
 };
 
 /**
  * Truncate text to specified length
  */
 export const truncateText = (text: string, length: number): string => {
-  return text.length > length ? text.substring(0, length) + "..." : text;
+  const chars = Array.from(text);
+  return chars.length > length ? chars.slice(0, length).join("") + "..." : text;
 };
 
 /**
@@ -124,7 +131,7 @@ export const getImageType = (
 export const imageRandom = (
   id: number | string = 1,
   typeImage: "icon" | "recipe" | "text" | undefined = undefined,
-  size: string | undefined = undefined,
+  size: string | undefined = "400x200",
   color: string | undefined = "#cdcdcd",
   text: string | undefined = "Hello+World"
 ) => {
@@ -134,9 +141,7 @@ export const imageRandom = (
     case "recipe":
       return `https://cdn.dummyjson.com/recipe-images/${id || 1}.webp`;
     case "text":
-      return `https://dummyjson.com/image/${
-        size || "400x200"
-      }/${color}?fontFamily=pacifico&text=${text}`;
+      return `https://dummyjson.com/image/${size}/${color}?fontFamily=pacifico&text=${text}`;
     default:
       return `https://cdn.dummyjson.com/recipe-images/${id || 1}.webp`;
   }
