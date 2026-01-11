@@ -1,6 +1,8 @@
 import SendIcon from "@mui/icons-material/Send";
 import {Box, IconButton, Typography} from "@mui/material";
 import React from "react";
+import {useNavigate} from "react-router-dom";
+import {imageRandom, randomNumber} from "../utils/helpers";
 import AvatarUI from "./AvatarUI";
 import Responsive from "./Responsive";
 
@@ -23,6 +25,7 @@ import Responsive from "./Responsive";
  */
 
 const MessageContain: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -59,6 +62,7 @@ const MessageContain: React.FC = () => {
         }}
       >
         <IconButton
+          onClick={() => navigate("/messages")}
           sx={{
             display: "flex",
             gap: 1,
@@ -88,12 +92,15 @@ const MessageContain: React.FC = () => {
               >
                 <Typography sx={{fontWeight: 700}}>Messages</Typography>
                 <Box sx={{position: "relative", display: "flex"}}>
-                  {[...Array(3)]?.map((_, index) => {
+                  {[
+                    imageRandom(randomNumber(10, 100), "icon"),
+                    imageRandom(randomNumber(10, 100), "icon"),
+                    imageRandom(randomNumber(10, 100), "icon"),
+                  ]?.map((img, index) => {
                     return (
                       <Box
                         key={`msg-avatar-${index}`}
                         sx={{
-                          // ml: "-30px",
                           mr: "-10px",
                           position: "relative",
                           zIndex: 10 - index,
@@ -104,12 +111,7 @@ const MessageContain: React.FC = () => {
                           },
                         }}
                       >
-                        <AvatarUI
-                          profileImage={
-                            "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png"
-                          }
-                          size={"free"}
-                        />
+                        <AvatarUI profileImage={img} size={"free"} />
                       </Box>
                     );
                   })}

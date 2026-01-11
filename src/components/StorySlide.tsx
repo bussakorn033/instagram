@@ -25,7 +25,7 @@ import AvatarStory from "./AvatarStory";
 
 interface StorySlideProps {
   dataList: Array<{
-    userID: string;
+    userName: string;
     profileImage: string;
     isPrivate?: boolean;
     isFinal?: boolean;
@@ -36,7 +36,13 @@ interface StorySlideProps {
     settings: {slidesPerRow?: number};
   }>;
   spaceBetween?: number;
-  handleAction?: (data?: object) => void;
+  handleAction?: (data: {
+    userName: string;
+    profileImage: string;
+    isPrivate?: boolean;
+    isFinal?: boolean;
+    size?: "small" | "medium" | "large" | "free";
+  }) => void;
 }
 
 type ArrowProps = {
@@ -64,7 +70,7 @@ const PrevArrow = ({
       boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
       opacity: 1,
       top: "35%",
-      left: 6, // 👈 ขยับออกนอก carousel
+      left: 6,
       zIndex: 1,
       transform: "rotate(90deg)",
       backgroundColor: "#262626",

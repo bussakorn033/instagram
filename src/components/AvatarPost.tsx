@@ -1,6 +1,8 @@
 import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
 import {Box, IconButton, Typography} from "@mui/material";
 import React from "react";
+import {Link as RouterLink} from "react-router-dom";
+import {convertStringToNumber} from "../utils/helpers";
 import AvatarUI from "./AvatarUI";
 
 /**
@@ -13,7 +15,7 @@ import AvatarUI from "./AvatarUI";
  * @example
  * // Basic post header
  * <AvatarPost
- *   data={{\n *     userID: "john_doe",
+ *   data={{\n *     userName: "john_doe",
  *     profileImage: "https://example.com/avatar.jpg",
  *     atDate: "2 hours ago",
  *     location: "Bangkok, Thailand",
@@ -25,7 +27,7 @@ import AvatarUI from "./AvatarUI";
 
 interface AvatarPostProps {
   data: {
-    userID: string;
+    userName: string;
     profileImage: string;
     isPrivate?: boolean;
     isFinal?: boolean;
@@ -41,14 +43,14 @@ interface AvatarPostProps {
 const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
   const {
     profileImage = "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
-    userID,
+    userName,
     isPrivate,
     isFinal,
     size,
     isFriend,
-    atDate = "August 2023",
-    location = "bangkok, thailand",
-    music = "music music music",
+    atDate = "",
+    location = "",
+    music = "",
   } = data;
   return (
     <Box
@@ -80,6 +82,8 @@ const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
           }}
         >
           <Box
+            component={RouterLink}
+            to={`/profile/${convertStringToNumber(userName)}`}
             sx={{
               position: "relative",
               display: "flex",
@@ -88,7 +92,7 @@ const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
               justifyContent: "center",
               gap: 1,
               "@media (max-width: 1023px)": {
-                width: "100px",
+                maxWidth: "100px",
               },
             }}
           >
@@ -99,6 +103,7 @@ const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
               size={size}
             />
           </Box>
+
           <Box
             sx={{
               width: "90%",
@@ -111,25 +116,26 @@ const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
             }}
           >
             <Box
+              component={RouterLink}
+              to={`/profile/${convertStringToNumber(userName)}`}
               sx={{
-                width: "100%",
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "flex-start",
                 gap: 0.5,
+                "&:hover": {textDecoration: "none"},
               }}
             >
               <Typography
                 noWrap={true}
                 variant="caption"
                 sx={{
-                  // width: "100%",
                   color: "#ffffff",
                   fontSize: 16,
                   fontWeight: 700,
                 }}
               >
-                {userID}
+                {userName}
               </Typography>
               <Typography
                 noWrap={true}
@@ -139,7 +145,7 @@ const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
                   fontSize: 16,
                 }}
               >
-                <span>•</span> {atDate}
+                {userName && <span>•</span>} {atDate}
               </Typography>
             </Box>
 
@@ -161,7 +167,7 @@ const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
                   fontSize: 16,
                 }}
               >
-                {location} - {music}
+                {location} {location && music && " • "} {music}
               </Typography>
             </Box>
           </Box>
@@ -175,6 +181,12 @@ const AvatarPost: React.FC<AvatarPostProps> = ({data, handleAction}) => {
             justifyContent: "flex-start",
             color: "#ffffff",
             borderRadius: 0,
+            ":hover, :focus, :focus-visible": {
+              transform: "scale(1)",
+              backgroundColor: "transparent !important",
+              outline: "none",
+              border: "none",
+            },
           }}
         >
           <Typography
@@ -200,7 +212,7 @@ export default React.memo(AvatarPost);
  * USAGE NOTES:
  *
  * Props:
- * - data.userID: Username identifier
+ * - data.userName: Username identifier
  * - data.profileImage: Avatar image URL
  * - data.isPrivate: Show private account badge
  * - data.isFinal: Show verified account badge
@@ -225,7 +237,7 @@ export default React.memo(AvatarPost);
 /* Example: Post Card Header */
 /* <AvatarPost
   data={{
-    userID: "@john_doe",
+    userName: "@john_doe",
     profileImage: "https://example.com/profile.jpg",
     isPrivate: false,
     isFinal: true,
@@ -239,7 +251,7 @@ export default React.memo(AvatarPost);
 /* Example: Story Header with Music */
 /* <AvatarPost
   data={{
-    userID: "@jane_smith",
+    userName: "@jane_smith",
     profileImage: "https://example.com/profile.jpg",
     atDate: "Just now",
     location: "Phuket Beach",

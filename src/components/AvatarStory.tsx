@@ -13,7 +13,7 @@ import AvatarUI from "./AvatarUI";
  * // Basic story avatar
  * <AvatarStory
  *   data={{
- *     userID: "john_doe",
+ *     userName: "john_doe",
  *     profileImage: "https://example.com/avatar.jpg",
  *     size: "medium"
  *   }}
@@ -23,7 +23,7 @@ import AvatarUI from "./AvatarUI";
 interface AvatarStoryProps {
   data: {
     profileImage: string;
-    userID: string;
+    userName: string;
     isPrivate?: boolean;
     isFinal?: boolean;
     size?: "small" | "medium" | "large" | "free";
@@ -33,7 +33,7 @@ interface AvatarStoryProps {
 const AvatarStory: React.FC<AvatarStoryProps> = ({data}) => {
   const {
     profileImage = "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
-    userID,
+    userName,
     isPrivate,
     isFinal,
     size,
@@ -57,7 +57,7 @@ const AvatarStory: React.FC<AvatarStoryProps> = ({data}) => {
         variant="caption"
         sx={{color: "#ffffff", fontSize: 14}}
       >
-        {userID}
+        {userName}
       </Typography>
     </Box>
   );
@@ -70,7 +70,7 @@ export default React.memo(AvatarStory);
  *
  * Props:
  * - data.profileImage: User's avatar image URL
- * - data.userID: Username to display below avatar
+ * - data.userName: Username to display below avatar
  * - data.isPrivate: Show private account indicator (green border)
  * - data.isFinal: Show verified account indicator (gray border)
  * - data.size: Avatar size (small, medium, large, or free)
@@ -96,7 +96,7 @@ export default React.memo(AvatarStory);
 /* Example: Story Carousel Item */
 /* <AvatarStory
   data={{
-    userID: "john_doe",
+    userName: "john_doe",
     profileImage: "https://example.com/profile.jpg",
     size: "medium"
   }}
@@ -105,7 +105,7 @@ export default React.memo(AvatarStory);
 /* Example: Verified Story Creator */
 /* <AvatarStory
   data={{
-    userID: "celebrity_user",
+    userName: "celebrity_user",
     profileImage: "https://example.com/profile.jpg",
     isFinal: true,
     size: "large"

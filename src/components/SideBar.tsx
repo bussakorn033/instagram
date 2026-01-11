@@ -11,9 +11,11 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import SendIcon from "@mui/icons-material/Send";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import {AppBar, Box, Button, Tooltip} from "@mui/material";
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import {Link as RouterLink} from "react-router-dom";
+import {USER_ID} from "../constants";
 import {useAppSelector} from "../hooks";
+import {imageRandom} from "../utils/helpers";
 import AvatarUI from "./AvatarUI";
 import NotificationsContain from "./NotificationsContain";
 import SearchContain from "./SearchContain";
@@ -38,6 +40,7 @@ import SearchContain from "./SearchContain";
  */
 
 const Sidebar: React.FC = () => {
+  const IMAGE_PROFILE = useMemo(() => imageRandom(Number(USER_ID), "icon"), []);
   const [activeTab, setActiveTab] = useState<string>("Home");
   const [isShowSearch, setIsShowSearch] = useState<boolean>(false);
   const [isShowNotifications, setIsShowNotifications] =
@@ -78,7 +81,7 @@ const Sidebar: React.FC = () => {
       label: "Notifications",
     },
     {
-      to: "/profile/nanny",
+      to: `/profile/${USER_ID}`,
       icon: (
         <Box
           sx={{
@@ -90,12 +93,7 @@ const Sidebar: React.FC = () => {
             },
           }}
         >
-          <AvatarUI
-            profileImage={
-              "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png"
-            }
-            size={"free"}
-          />
+          <AvatarUI profileImage={IMAGE_PROFILE} size={"free"} />
         </Box>
       ),
       label: "Profile",
@@ -431,7 +429,7 @@ export default React.memo(Sidebar);
  * - Explore: \"/explore\" route
  * - Messages: \"/messages\" route
  * - Notifications: Opens NotificationsContain drawer
- * - Profile: \"/profile/nanny\" route
+ * - Profile: \"/profile/1\" route
  *
  * Layout Responsive:
  * - Mobile (max-width: 1023px): 70px width, icons only

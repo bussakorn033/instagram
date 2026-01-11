@@ -1,8 +1,11 @@
+import ExpandCircleDownRoundedIcon from "@mui/icons-material/ExpandCircleDownRounded";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import TurnedInNotOutlinedIcon from "@mui/icons-material/TurnedInNotOutlined";
+import TurnedInOutlinedIcon from "@mui/icons-material/TurnedInOutlined";
+import VideoLibraryRoundedIcon from "@mui/icons-material/VideoLibraryRounded";
 import {
   Box,
   Card,
@@ -11,11 +14,32 @@ import {
   CardMedia,
   IconButton,
   Typography,
+  keyframes,
 } from "@mui/material";
-import React, {useState} from "react";
-import type {Post as PostType} from "../types";
+import {Carousel} from "antd";
+import React, {useEffect, useState} from "react";
+import type {PostItem} from "../store/slices/post/types";
 import {formatNumber} from "../utils/helpers";
 import AvatarPost from "./AvatarPost";
+
+// Like button animation keyframes
+const globalBounce = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.3);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  75% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
 
 /**
  * Post Component
@@ -37,38 +61,138 @@ import AvatarPost from "./AvatarPost";
  */
 
 interface PostProps {
-  post: PostType;
+  post: PostItem;
 }
 
+type ArrowProps = {
+  className?: string;
+  style?: React.CSSProperties;
+  currentSlide?: number;
+  slideCount?: number;
+  onClick?: () => void;
+};
+
+const PrevArrow = ({
+  className,
+  style,
+  onClick,
+  currentSlide = 0,
+}: ArrowProps) => (
+  <div
+    className={className}
+    style={{
+      ...style,
+      display: currentSlide === 0 ? "none" : "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "50%",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+      opacity: 0.8,
+      top: "50%",
+      left: 12,
+      zIndex: 1,
+      transform: "rotate(90deg)",
+      backgroundColor: "#262626",
+      zoom: 1.2,
+    }}
+    onClick={onClick}
+  >
+    <ExpandCircleDownRoundedIcon />
+  </div>
+);
+
+const NextArrow = ({
+  className,
+  style,
+  onClick,
+  currentSlide = 0,
+  slideCount = 0,
+}: ArrowProps) => (
+  <div
+    className={className}
+    style={{
+      ...style,
+      display: currentSlide + 1 === slideCount ? "none" : "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "50%",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+      opacity: 0.8,
+      top: "50%",
+      right: 5,
+      zIndex: 1,
+      transform: "rotate(270deg) translateY(-50%)",
+      backgroundColor: "#262626",
+      zoom: 1.2,
+    }}
+    onClick={onClick}
+  >
+    <ExpandCircleDownRoundedIcon />
+  </div>
+);
+
 const Post: React.FC<PostProps> = ({post}) => {
-  const [showComments, setShowComments] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [animateLike, setAnimateLike] = useState(false);
+  const [animateSave, setAnimateSave] = useState(false);
+
+  useEffect(() => {
+    if (
+      (post?.reactions?.likes >= 50 && post?.reactions?.likes <= 100) ||
+      (post?.reactions?.likes >= 300 && post?.reactions?.likes <= 400) ||
+      (post?.reactions?.likes >= 600 && post?.reactions?.likes <= 700)
+    ) {
+      setIsLiked(true);
+    }
+  }, [post?.reactions?.likes]);
 
   const handleLike = () => {
-    if (post.isLiked) {
-    } else {
-    }
+    setAnimateLike(true);
+    setIsLiked(!isLiked);
+    // Reset animation after it completes
+    setTimeout(() => setAnimateLike(false), 500);
+  };
+  const handleSave = () => {
+    setAnimateSave(true);
+    setIsSaved(!isSaved);
+    // Reset animation after it completes
+    setTimeout(() => setAnimateSave(false), 500);
   };
 
   return (
     <Card
       sx={{
         width: "100%",
-        // marginBottom: 2,
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
         borderRadius: 2,
         border: "none",
+
+        ".slick-dots > li, .slick-dots > li > button , slick-dots > li.slick-active":
+          {
+            width: "10px !important",
+            height: "10px !important",
+            aspectRatio: "1 / 1",
+            backgroundColor: "#ffffff",
+            borderRadius: "50%",
+            opacity: 0.5,
+          },
+        ".slick-active": {
+          opacity: "1 !important",
+        },
       }}
     >
       {/* Post Header */}
       <AvatarPost
         data={{
-          userID: "username",
-          profileImage:
-            "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
+          userName: post?.userName?.toString() as string,
+          profileImage: post?.imageProfile as string,
           isPrivate: false,
           isFinal: false,
           size: "small",
-          atDate: "August 2023",
+          atDate: post?.atDate,
+          location: post?.location,
+          music: post?.music,
         }}
         handleAction={(isFriend) => {
           console.log("isFriend", isFriend);
@@ -76,19 +200,103 @@ const Post: React.FC<PostProps> = ({post}) => {
       />
 
       {/* Post Images */}
-      {post.images.length > 0 && (
-        <CardMedia
-          component="img"
-          height="500"
-          image={post.images[0]}
-          alt="Post"
-          sx={{
-            objectFit: "cover",
-            aspectRatio: "1 / 1",
-            width: "100%",
-            height: "100%",
-          }}
-        />
+      {[...(post?.imagePost || [])]?.length > 0 ? (
+        <>
+          <Carousel
+            rows={1}
+            vertical={false}
+            infinite={true}
+            dots={true}
+            swipe={true}
+            swipeToSlide={true}
+            draggable={true}
+            arrows={true}
+            slidesPerRow={1}
+            prevArrow={<PrevArrow />}
+            nextArrow={<NextArrow />}
+          >
+            {post?.imagePost?.map((image, index) => (
+              <Box
+                key={`post-image-${index}`}
+                sx={{
+                  position: "relative",
+                  height: "100%",
+                  color: "#ffffff",
+                  paddingX: 0.5,
+                }}
+              >
+                <CardMedia
+                  onDoubleClick={() => {
+                    handleLike();
+                  }}
+                  component="img"
+                  height="500"
+                  image={image}
+                  alt={`Post Image ${index + 1}`}
+                  sx={{
+                    objectFit: "cover",
+                    aspectRatio: "1 / 1",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </Box>
+            ))}
+          </Carousel>
+          {/* <CardMedia
+            onDoubleClick={() => {
+              handleLike();
+            }}
+            component="img"
+            height="500"
+            image={post?.imagePost?.[0]}
+            alt="Post"
+            sx={{
+              objectFit: "cover",
+              aspectRatio: "1 / 1",
+              width: "100%",
+              height: "100%",
+            }}
+          /> */}
+        </>
+      ) : (
+        <Box sx={{position: "relative"}}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              color: "#ffffff",
+            }}
+          >
+            <VideoLibraryRoundedIcon
+              sx={{
+                fontSize: {xs: "1rem", sm: "1.5rem", md: "2rem"},
+                textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+                cursor: "pointer",
+              }}
+            />
+          </Box>
+          <CardMedia
+            onDoubleClick={() => {
+              handleLike();
+            }}
+            component="img"
+            height="500"
+            image={post?.imageVDO}
+            alt="Post"
+            sx={{
+              objectFit: "cover",
+              aspectRatio: "1 / 1",
+              width: "100%",
+              height: "100%",
+              borderRadius: 1,
+            }}
+          />
+        </Box>
       )}
 
       {/* Post Actions */}
@@ -101,11 +309,19 @@ const Post: React.FC<PostProps> = ({post}) => {
               <IconButton
                 onClick={handleLike}
                 sx={{
-                  color: post.isLiked ? "#ef4444" : "#ffffff",
+                  color: isLiked ? "#ef4444" : "#ffffff",
                   transition: "color 0.2s ease",
+                  animation: animateLike
+                    ? `${globalBounce} 0.5s ease-in-out`
+                    : "none",
+                  ":hover, :focus, :focus-visible": {
+                    transform: "scale(1)",
+                    outline: "none",
+                    border: "none",
+                  },
                 }}
               >
-                {post.isLiked ? (
+                {isLiked ? (
                   <FavoriteIcon sx={{fontSize: "1.5rem"}} />
                 ) : (
                   <FavoriteBorderIcon sx={{fontSize: "1.5rem"}} />
@@ -116,14 +332,18 @@ const Post: React.FC<PostProps> = ({post}) => {
                 variant="body2"
                 sx={{fontWeight: 700, color: "#ffffff"}}
               >
-                {formatNumber(post.likes)}
+                {formatNumber(post?.reactions?.likes + (isLiked ? 1 : 0))}
               </Typography>
             </Box>
             <Box sx={{display: "flex", alignItems: "center", gap: 0.5}}>
               <IconButton
-                onClick={() => setShowComments(!showComments)}
                 sx={{
                   color: "#ffffff",
+                  ":hover, :focus, :focus-visible": {
+                    transform: "scale(1)",
+                    outline: "none",
+                    border: "none",
+                  },
                 }}
               >
                 <ModeCommentOutlinedIcon sx={{fontSize: "1.5rem"}} />
@@ -133,12 +353,17 @@ const Post: React.FC<PostProps> = ({post}) => {
                 variant="body2"
                 sx={{fontWeight: 700, color: "#ffffff"}}
               >
-                {formatNumber(post.comments)}
+                {formatNumber(post?.reactions?.dislikes)}
               </Typography>
             </Box>
             <IconButton
               sx={{
                 color: "#ffffff",
+                ":hover, :focus, :focus-visible": {
+                  transform: "scale(1)",
+                  outline: "none",
+                  border: "none",
+                },
               }}
             >
               <SendOutlinedIcon sx={{fontSize: "1.5rem"}} />
@@ -147,13 +372,25 @@ const Post: React.FC<PostProps> = ({post}) => {
 
           <Box sx={{display: "flex", gap: 1}}>
             <IconButton
-              onClick={handleLike}
+              onClick={handleSave}
               sx={{
-                color: post.isLiked ? "#ef4444" : "#ffffff",
+                color: "#ffffff",
                 transition: "color 0.2s ease",
+                animation: animateSave
+                  ? `${globalBounce} 0.5s ease-in-out`
+                  : "none",
+                ":hover, :focus, :focus-visible": {
+                  transform: "scale(1)",
+                  outline: "none",
+                  border: "none",
+                },
               }}
             >
-              <TurnedInNotOutlinedIcon sx={{fontSize: "1.5rem"}} />
+              {isSaved ? (
+                <TurnedInOutlinedIcon sx={{fontSize: "1.5rem"}} />
+              ) : (
+                <TurnedInNotOutlinedIcon sx={{fontSize: "1.5rem"}} />
+              )}
             </IconButton>
           </Box>
         </Box>
@@ -162,7 +399,7 @@ const Post: React.FC<PostProps> = ({post}) => {
       {/* Likes Count */}
       <CardContent sx={{p: 1}}>
         <Typography color="primary.contrastText" noWrap={true} variant="body2">
-          <strong>{post.author.username}</strong> {post.caption}
+          <strong>{post.userName}</strong> {post.body}
         </Typography>
       </CardContent>
     </Card>
@@ -179,7 +416,7 @@ export default React.memo(Post);
  *
  * Post Object Structure:
  * - id: Unique post ID
- * - author: User object (userID, username, profileImage)
+ * - author: User object (userName, username, profileImage)
  * - images: Array of image URLs
  * - caption: Post text
  * - likes: Like count

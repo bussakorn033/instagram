@@ -15,7 +15,7 @@ import AvatarUI from "./AvatarUI";
  * <AvatarContain
  *   type="user"
  *   data={{
- *     userID: "john_doe",
+ *     userName: "john_doe",
  *     profileImage: "https://example.com/avatar.jpg",
  *     name: "John Doe",
  *     isPrivate: false,
@@ -31,7 +31,7 @@ import AvatarUI from "./AvatarUI";
  *   type="friend"
  *   isShowType={true}
  *   data={{
- *     userID: "jane_smith",
+ *     userName: "jane_smith",
  *     profileImage: "https://example.com/avatar.jpg",
  *     isFriend: true,
  *     followed: ["John", "Sarah", "Mike"],
@@ -48,7 +48,7 @@ interface AvatarContainProps {
   type?: "user" | "friend" | "search";
   /** User data containing profile information */
   data: {
-    userID: string;
+    userName: string;
     profileImage: string;
     name?: string;
     isPrivate?: boolean;
@@ -58,7 +58,17 @@ interface AvatarContainProps {
     isFriend?: boolean;
   };
   /** Callback function triggered when user interacts with the component */
-  handleAction?: (data?: object) => void;
+  handleAction?: (data?: {
+    userName: string;
+    profileImage: string;
+    name?: string;
+    isPrivate?: boolean;
+    isFinal?: boolean;
+    size?: "small" | "medium" | "large" | "free";
+    followed?: string[];
+    isFriend?: boolean;
+    type?: "user" | "friend" | "search";
+  }) => void;
 }
 
 const AvatarContain: React.FC<AvatarContainProps> = ({
@@ -69,7 +79,7 @@ const AvatarContain: React.FC<AvatarContainProps> = ({
 }) => {
   const {
     profileImage = "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
-    userID,
+    userName,
     name,
     isPrivate,
     isFinal,
@@ -152,7 +162,7 @@ const AvatarContain: React.FC<AvatarContainProps> = ({
                   fontWeight: 700,
                 }}
               >
-                {userID}
+                {userName}
               </Typography>
             </Box>
 
@@ -176,9 +186,9 @@ const AvatarContain: React.FC<AvatarContainProps> = ({
               >
                 {type === "user"
                   ? name
-                  : isFriend
+                  : !isFriend
                   ? followed?.map((item) => item).join(", ")
-                  : "Follow"}
+                  : ""}
               </Typography>
             </Box>
           </Box>
@@ -268,7 +278,7 @@ export default React.memo(AvatarContain);
   type="user"
   isShowType={true}
   data={{
-    userID: "john_doe",
+    userName: "john_doe",
     profileImage: "https://example.com/profile.jpg",
     name: "John Doe",
     isPrivate: false,
@@ -283,7 +293,7 @@ export default React.memo(AvatarContain);
   type="friend"
   isShowType={true}
   data={{
-    userID: "jane_smith",
+    userName: "jane_smith",
     profileImage: "https://example.com/profile.jpg",
     isFriend: true,
     followed: ["Alice Johnson", "Bob Smith", "Charlie Brown"],
@@ -297,7 +307,7 @@ export default React.memo(AvatarContain);
   type="search"
   isShowType={true}
   data={{
-    userID: "user_search_result",
+    userName: "user_search_result",
     profileImage: "https://example.com/profile.jpg",
     name: "Search Result User",
     isFriend: false,
@@ -310,7 +320,7 @@ export default React.memo(AvatarContain);
   type="friend"
   isShowType={false}
   data={{
-    userID: "username",
+    userName: "username",
     profileImage: "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
     isPrivate: false,
     isFinal: false,

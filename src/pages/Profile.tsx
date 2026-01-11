@@ -14,48 +14,118 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
+import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import AvatarUI from "../components/AvatarUI";
 import LayoutContain from "../components/LayoutContain";
+import Loading from "../components/Loading";
 import PostItem from "../components/PostItem";
 import StorySlide from "../components/StorySlide";
-import {useAppDispatch} from "../hooks";
-import {formatNumber} from "../utils/helpers";
+import {useAppDispatch, useInfiniteScroll} from "../hooks";
+import type {RootState} from "../store"; // or wherever your store is configured
+import {setPostByIdListSkip} from "../store/slices/post";
+import {getPostByIdList} from "../store/slices/post/thunks";
+import {
+  formatNumber,
+  imageRandom,
+  randomDateTime,
+  randomLocation,
+  randomMusic,
+  randomNumber,
+} from "../utils/helpers";
 
 const Profile: React.FC = () => {
   const {userId} = useParams();
   const dispatch = useAppDispatch();
+  const {postByIdList} = useSelector((state: RootState) => state.post);
   const [tabValue, setTabValue] = useState("posts");
-  const [isNewCollection, setIsNewCollection] = useState(false);
-  console.log(`---- ~ Profile ~ isNewCollection:`, isNewCollection);
+  const [isLiked, setIsLiked] = useState(false);
+  const IMAGE_PROFILE = useMemo(() => imageRandom(Number(userId), "icon"), []);
 
-  useEffect(() => {
-    if (userId) {
-    }
-  }, [userId, dispatch]);
-
-  // if (!currentProfile) {
-  //   return (
-  //     <Box
-  //       sx={{
-  //         display: "flex",
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         minHeight: "100vh",
-  //       }}
-  //     >
-  //       <CircularProgress />
-  //     </Box>
-  //   );
-  // }
+  const tabImage: Record<
+    "story" | "posts" | "reels" | "saved" | "tagged",
+    {image: string[]}
+  > = {
+    story: {
+      image: [...Array(randomNumber(1, 29))].map(() =>
+        imageRandom(randomNumber(1, 50), "recipe")
+      ),
+    },
+    posts: {
+      image: [...Array(randomNumber(0, 100))].map(() =>
+        imageRandom(randomNumber(1, 50), "recipe")
+      ),
+    },
+    reels: {
+      image: [...Array(randomNumber(0, 100))].map(() =>
+        imageRandom(randomNumber(1, 50), "recipe")
+      ),
+    },
+    saved: {
+      image: [...Array(randomNumber(0, 100))].map(() =>
+        imageRandom(randomNumber(1, 50), "recipe")
+      ),
+    },
+    tagged: {
+      image: [...Array(randomNumber(0, 100))].map(() =>
+        imageRandom(randomNumber(1, 50), "recipe")
+      ),
+    },
+  };
+  console.log(`---- ~ Profile ~ tabImage:`, tabImage);
 
   const handleFollow = () => {};
-
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     console.log(`---- ~ handleTabChange ~ event:`, event);
     setTabValue(newValue);
   };
+
+  const getPostByIdListData = async () => {
+    await dispatch(
+      getPostByIdList({
+        id: userId || "",
+        limit: postByIdList?.limit || 24,
+        skip: postByIdList?.skip || 0,
+      })
+    );
+  };
+
+  useEffect(() => {
+    getPostByIdListData();
+  }, [postByIdList?.skip]);
+
+  // Infinite scroll hook for loading more posts
+  const {isLoading} = useInfiniteScroll(
+    () => {
+      // Check if there are more posts to load
+      if (
+        (postByIdList?.skip || 0) * (postByIdList?.limit || 10) <
+        (postByIdList?.total || 0)
+      ) {
+        console.log("load more posts...");
+        dispatch(setPostByIdListSkip((postByIdList?.skip || 0) + 1));
+      }
+    },
+    {
+      threshold: 500,
+      delay: 1000,
+      enabled: true,
+    }
+  );
+
+  useEffect(() => {
+    if (
+      ((postByIdList?.posts?.[0]?.reactions?.likes ?? 0) >= 50 &&
+        (postByIdList?.posts?.[0]?.reactions?.likes ?? 0) <= 100) ||
+      ((postByIdList?.posts?.[0]?.reactions?.likes ?? 0) >= 300 &&
+        (postByIdList?.posts?.[0]?.reactions?.likes ?? 0) <= 400) ||
+      ((postByIdList?.posts?.[0]?.reactions?.likes ?? 0) >= 600 &&
+        (postByIdList?.posts?.[0]?.reactions?.likes ?? 0) <= 700)
+    ) {
+      setIsLiked(true);
+    }
+  }, [postByIdList?.posts?.[0]?.reactions?.likes]);
 
   return (
     <LayoutContain
@@ -129,9 +199,7 @@ const Profile: React.FC = () => {
               }}
             >
               <AvatarUI
-                profileImage={
-                  "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png"
-                }
+                profileImage={IMAGE_PROFILE}
                 isPrivate={false}
                 isFinal={false}
                 size="free"
@@ -141,7 +209,18 @@ const Profile: React.FC = () => {
           {/* Avatar */}
 
           {/* Profile Info */}
-          <Box sx={{display: "flex", flexDirection: "column", flex: 1, gap: 2}}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              gap: 2,
+              width: "50%",
+              "@media (max-width: 767px)": {
+                zoom: 0.8,
+              },
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
@@ -152,7 +231,7 @@ const Profile: React.FC = () => {
               }}
             >
               <Typography noWrap={true} sx={{color: "#ffffff", fontSize: 20}}>
-                {"username"}
+                {postByIdList?.posts[0]?.userId || "Unknown"}
               </Typography>
 
               <Box sx={{display: "flex", gap: 1}}>
@@ -178,7 +257,7 @@ const Profile: React.FC = () => {
                     },
                   }}
                 >
-                  {true ? "Following" : "Follow"}
+                  {isLiked ? "Following" : "Follow"}
                 </Button>
 
                 <Button
@@ -208,7 +287,7 @@ const Profile: React.FC = () => {
 
                 <Button
                   variant={"contained"}
-                  startIcon={true ? <PersonRemoveIcon /> : <PersonAddIcon />}
+                  startIcon={isLiked ? <PersonRemoveIcon /> : <PersonAddIcon />}
                   onClick={handleFollow}
                   sx={{
                     backgroundColor: "#25292F",
@@ -251,7 +330,7 @@ const Profile: React.FC = () => {
                   noWrap={true}
                   sx={{fontSize: 16, fontWeight: 700, color: "#ffffff"}}
                 >
-                  {formatNumber(0)}
+                  {formatNumber(postByIdList?.posts?.[0]?.views || 0)}
                 </Typography>
                 <Typography noWrap={true} sx={{fontSize: 16, color: "#ffffff"}}>
                   Posts
@@ -269,7 +348,9 @@ const Profile: React.FC = () => {
                   noWrap={true}
                   sx={{fontSize: 16, fontWeight: 700, color: "#ffffff"}}
                 >
-                  {formatNumber(0)}
+                  {formatNumber(
+                    postByIdList?.posts?.[0]?.reactions?.likes || 0
+                  )}
                 </Typography>
                 <Typography noWrap={true} sx={{fontSize: 16, color: "#ffffff"}}>
                   Followers
@@ -287,7 +368,9 @@ const Profile: React.FC = () => {
                   noWrap={true}
                   sx={{fontSize: 16, fontWeight: 700, color: "#ffffff"}}
                 >
-                  {formatNumber(0)}
+                  {formatNumber(
+                    postByIdList?.posts?.[0]?.reactions?.likes || 0
+                  )}
                 </Typography>
                 <Typography noWrap={true} sx={{fontSize: 16, color: "#ffffff"}}>
                   Following
@@ -299,7 +382,9 @@ const Profile: React.FC = () => {
             {/* Bio */}
             <Box sx={{display: "flex", gap: 4}}>
               <Typography noWrap={true} sx={{color: "#ffffff"}}>
-                {"No bio yet"}
+                {postByIdList?.posts?.[0]?.body
+                  ? postByIdList?.posts?.[0]?.body
+                  : "No bio yet"}
               </Typography>
             </Box>
             {/* Bio */}
@@ -307,7 +392,14 @@ const Profile: React.FC = () => {
             {/* Followed */}
             <Box sx={{display: "flex", gap: 4}}>
               <Typography noWrap={true} sx={{color: "#ffffff"}}>
-                {"No followed yet"}
+                {(postByIdList?.posts?.[0]?.tags || []).length > 0 ? (
+                  <>
+                    <strong>Followed by</strong>{" "}
+                    {postByIdList?.posts?.[0]?.tags?.join(", ")}
+                  </>
+                ) : (
+                  "No followed yet"
+                )}
               </Typography>
             </Box>
             {/* Followed */}
@@ -319,19 +411,17 @@ const Profile: React.FC = () => {
       {/* Story Recommend */}
       <Box
         sx={{
-          mt: 4,
           padding: 4,
           "@media (max-width: 1023px)": {
-            padding: 0,
+            padding: "2rem 0rem",
           },
         }}
       >
         <StorySlide
           spaceBetween={2}
-          dataList={[...Array(20)]?.map(() => ({
-            userID: "username",
-            profileImage:
-              "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
+          dataList={[tabImage["story"]]?.map(() => ({
+            userName: `<3`,
+            profileImage: imageRandom(randomNumber(1, 50), "recipe"),
             isPrivate: false,
             isFinal: false,
             size: "free",
@@ -389,9 +479,12 @@ const Profile: React.FC = () => {
             button: {
               minWidth: "50px !important",
               maxWidth: "50px !important",
-              mx: 8,
+              mx: 5,
               "@media (max-width: 1023px)": {
-                mx: 1,
+                mx: 5,
+              },
+              "@media (max-width: 767px)": {
+                mx: 2,
               },
             },
             "button:focus, button:focus-visible, button:hover": {
@@ -435,7 +528,7 @@ const Profile: React.FC = () => {
                 Only you can see what you've saved
               </Typography>
               <IconButton
-                onClick={() => setIsNewCollection(true)}
+                // onClick={() => setIsNewCollection(true)}
                 sx={{
                   textAlign: "right",
                   gap: 1,
@@ -453,11 +546,7 @@ const Profile: React.FC = () => {
                   },
                 }}
               >
-                {/* <Typography
-                  sx={{fontWeight: 700, color: "#86A1FF", fontSize: 14}}
-                > */}
                 <AddRoundedIcon sx={{color: "#86A1FF"}} /> New Collection
-                {/* </Typography> */}
               </IconButton>
             </Box>
           )}
@@ -488,37 +577,75 @@ const Profile: React.FC = () => {
               },
             }}
           >
-            {[...Array(10)]
-              ?.map((_, index) => {
+            {tabImage?.[tabValue as keyof typeof tabImage]?.image
+              ?.map((post, index) => {
                 return {
-                  id: `post-${index}`,
-                  userId: `user-${index}`,
-                  author: {
-                    id: `user-${index}`,
-                    username: "john_doe",
-                    email: "john@example.com",
-                    profileImage:
-                      "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
-                    bio: "Photography enthusiast",
-                    followersCount: 250,
-                    followingCount: 120,
-                    postsCount: 45,
-                    isFollowing: false,
+                  id: randomNumber(0, 100000),
+                  title: "",
+                  body: "",
+                  tags: [""],
+                  reactions: {
+                    likes: randomNumber(0, 100000),
+                    dislikes: randomNumber(0, 100000),
                   },
-                  album: "Summer Vacation",
-                  caption: "Enjoying the sunny day at the beach!",
-                  images: [
-                    "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
-                  ],
-                  likes: 150,
-                  comments: 25,
-                  isLiked: false,
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
+                  views: randomNumber(0, 100000),
+                  userId: randomNumber(0, 100000),
+                  userName: "",
+                  name: "",
+                  imageProfile: post,
+                  imagePost:
+                    index % 2 === 0
+                      ? tabImage?.[
+                          tabValue as keyof typeof tabImage
+                        ]?.image?.splice(
+                          randomNumber(
+                            0,
+                            tabImage?.[tabValue as keyof typeof tabImage]?.image
+                              ?.length - 1
+                          ),
+                          1
+                        )
+                      : undefined,
+                  imageVDO:
+                    index % 2 !== 0
+                      ? tabImage?.[tabValue as keyof typeof tabImage]?.image?.[
+                          randomNumber(
+                            0,
+                            tabImage?.[tabValue as keyof typeof tabImage]?.image
+                              ?.length - 1
+                          )
+                        ]
+                      : undefined,
+                  atDate: randomDateTime(),
+                  location:
+                    index % randomNumber(1, 3) === 0
+                      ? randomLocation()
+                      : undefined,
+                  music:
+                    index % randomNumber(1, 3) === 0
+                      ? randomMusic()
+                      : undefined,
+                  album:
+                    index % randomNumber(1, 3) === 0
+                      ? `Album ${randomNumber(1, 3)}`
+                      : undefined,
+                  albumImages:
+                    index % randomNumber(1, 3) === 0
+                      ? [
+                          tabImage?.[tabValue as keyof typeof tabImage]
+                            ?.image?.[
+                            randomNumber(
+                              0,
+                              tabImage?.[tabValue as keyof typeof tabImage]
+                                ?.image?.length - 1
+                            )
+                          ],
+                        ]
+                      : undefined,
                 };
               })
               ?.map((item, index) => (
-                <Box key={`post-item-box-${index}`}>
+                <Box key={`post-item-${tabValue}-${index}`}>
                   <PostItem
                     post={item}
                     typePost={
@@ -528,19 +655,14 @@ const Profile: React.FC = () => {
                         ? "reels"
                         : "saved"
                     }
-                    typeImage={
-                      item?.images?.length > 1
-                        ? "album"
-                        : item?.images?.length === 1
-                        ? "image"
-                        : "video"
-                    }
+                    typeImage={item?.imageVDO ? "video" : "image"}
                   />
                 </Box>
               ))}
           </Box>
           {/* Posts */}
         </>
+        {isLoading && <Loading id={`loading-profile-page`} />}
       </Box>
     </LayoutContain>
   );

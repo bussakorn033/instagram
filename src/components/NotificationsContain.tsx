@@ -1,7 +1,10 @@
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
 import {Box, Drawer, IconButton, Typography} from "@mui/material";
 import Divider from "@mui/material/Divider";
-import React from "react";
+import React, {useEffect} from "react";
+import {useSelector} from "react-redux";
+import type {RootState} from "../store";
+import {randomAction, randomNumber} from "../utils/helpers";
 import AvatarUI from "./AvatarUI";
 
 /**
@@ -27,10 +30,138 @@ interface NotificationsContainProps {
   onClose?: () => void;
 }
 
+interface NotificationsUser {
+  userName: string;
+  profileImage: string;
+  name: string;
+  isFriend: boolean;
+  isPrivate: undefined;
+  isFinal: undefined;
+  size: "medium";
+  followed: string[];
+}
+
 const NotificationsContain: React.FC<NotificationsContainProps> = ({
   open,
   onClose,
 }) => {
+  const {postList} = useSelector((state: RootState) => state.post);
+  const [notificationsFollowRequests, setNotificationsFollowRequests] =
+    React.useState<NotificationsUser[] | null>(null);
+  const [notificationsToday, setNotificationsToday] = React.useState<
+    NotificationsUser[] | null
+  >(null);
+  const [notificationsThisWeek, setNotificationsThisWeek] = React.useState<
+    NotificationsUser[] | null
+  >(null);
+  const [notificationsThisMonth, setNotificationsThisMonth] = React.useState<
+    NotificationsUser[] | null
+  >(null);
+
+  useEffect(() => {
+    if (
+      !notificationsFollowRequests &&
+      !notificationsToday &&
+      !notificationsThisWeek &&
+      !notificationsThisMonth &&
+      [...(postList?.posts || [])]?.length > 0
+    ) {
+      setNotificationsFollowRequests(() => {
+        return [...Array(1)]?.map(() => {
+          const randomIndex = randomNumber(
+            0,
+            (postList?.posts?.length || 1) - 1
+          );
+          const post = postList?.posts?.[randomIndex];
+          return {
+            userName: post?.userName || "",
+            profileImage: post?.imageProfile || "",
+            name: post?.userName || "",
+            isFriend: false,
+            isPrivate: undefined,
+            isFinal: undefined,
+            size: "medium" as const,
+            followed: [...Array(10)]?.map(
+              () => `User ${randomNumber(1, 1000)}`
+            ),
+          };
+        });
+      });
+      setNotificationsToday(() => {
+        return [...Array(randomNumber(0, 10))]?.map(() => {
+          const randomIndex = randomNumber(
+            0,
+            (postList?.posts?.length || 1) - 1
+          );
+          const post = postList?.posts?.[randomIndex];
+          const actionPost = randomAction();
+          return {
+            userName: post?.userName || "",
+            profileImage: actionPost?.includes("following")
+              ? ""
+              : post?.imageProfile || "",
+            name: actionPost || "",
+            isFriend: false,
+            isPrivate: undefined,
+            isFinal: undefined,
+            size: "medium" as const,
+            followed: [...Array(10)]?.map(
+              () => `User ${randomNumber(1, 1000)}`
+            ),
+          };
+        });
+      });
+      setNotificationsThisWeek(() => {
+        return [...Array(randomNumber(0, 10))]?.map(() => {
+          const randomIndex = randomNumber(
+            0,
+            (postList?.posts?.length || 1) - 1
+          );
+          const post = postList?.posts?.[randomIndex];
+          const actionPost = randomAction();
+          return {
+            userName: post?.userName || "",
+            profileImage: actionPost?.includes("start following")
+              ? ""
+              : post?.imageProfile || "",
+            name: actionPost || "",
+            isFriend: false,
+            isPrivate: undefined,
+            isFinal: undefined,
+            size: "medium" as const,
+            followed: [...Array(10)]?.map(
+              () => `User ${randomNumber(1, 1000)}`
+            ),
+          };
+        });
+      });
+      setNotificationsThisMonth(() => {
+        return [...Array(randomNumber(0, 10))]?.map(() => {
+          const randomIndex = randomNumber(
+            0,
+            (postList?.posts?.length || 1) - 1
+          );
+          const post = postList?.posts?.[randomIndex];
+          const actionPost = randomAction();
+          return {
+            userName: post?.userName || "",
+            profileImage: actionPost?.includes("start following")
+              ? ""
+              : post?.imageProfile || "",
+            name: actionPost || "",
+            isFriend: false,
+            isPrivate: undefined,
+            isFinal: undefined,
+            size: "medium" as const,
+            followed: [...Array(10)]?.map(
+              () => `User ${randomNumber(1, 1000)}`
+            ),
+          };
+        });
+      });
+    }
+  }, [postList?.posts]);
+
   return (
     <Drawer
       onClose={onClose}
@@ -50,10 +181,7 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
     >
       <Box
         sx={{
-          //   maxWidth: 300,
-          //   minWidth: 300,
           width: 300,
-          //   width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
@@ -86,12 +214,11 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
               gap: 2,
             }}
           >
-            {[...Array(1)]?.map((_, index) => {
+            {[...(notificationsFollowRequests || [])]?.map((post, index) => {
               return (
                 <Box
                   key={`noti-item-${index}`}
                   sx={{
-                    width: "100%",
                     position: "relative",
                     display: "flex",
                     flexDirection: "row",
@@ -102,15 +229,14 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
                 >
                   <Box sx={{display: "flex", gap: 2}}>
                     <AvatarUI
-                      profileImage={
-                        "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png"
-                      }
+                      profileImage={post.profileImage}
                       isFinal={false}
                       isPrivate={false}
                       size={"small"}
                     />
                     <Box
                       sx={{
+                        width: "65%",
                         display: "flex",
                         flexDirection: "column",
                       }}
@@ -132,7 +258,8 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
                           width: "100%",
                         }}
                       >
-                        Follow requests
+                        {post.followed?.slice(0, 3).join(", ")} +{" "}
+                        {randomNumber(1, 100)} others
                       </Typography>
                     </Box>
                   </Box>
@@ -155,86 +282,93 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
           </Box>
           {/* Follow requests */}
 
-          {/* Today */}
-          <Divider
-            orientation="horizontal"
-            flexItem
-            sx={{
-              ml: -2,
-              width: "calc(100% + 32px)",
-            }}
-          />
           <Box
             sx={{
               position: "relative",
               display: "flex",
               flexDirection: "column",
               gap: 2,
+              py: 2,
             }}
           >
-            <Typography sx={{fontWeight: 700, color: "#ffffff"}}>
-              Today
-            </Typography>
-            {[...Array(3)]?.map((_, index) => {
-              return (
-                <Box
-                  key={`noti-item-${index}`}
+            {[
+              {label: "Today", data: notificationsToday},
+              {label: "This Week", data: notificationsThisWeek},
+              {label: "This Month", data: notificationsThisMonth},
+            ]?.map((section, sectionIndex) => (
+              <Box
+                key={`noti-section-${sectionIndex}`}
+                sx={{display: "flex", flexDirection: "column", gap: 2}}
+              >
+                <Divider
+                  orientation="horizontal"
+                  flexItem
                   sx={{
-                    position: "relative",
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 2,
+                    ml: -2,
+                    width: "calc(100% + 32px)",
                   }}
-                >
+                />
+                {section.data && section.data.length > 0 && (
                   <>
-                    <AvatarUI
-                      profileImage={
-                        "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png"
-                      }
-                      isFinal={false}
-                      isPrivate={false}
-                      size={"small"}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: 14,
-                        color: "#ffffff",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2, // 👈 จำนวนบรรทัด
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        width: "50%",
-                      }}
-                    >
-                      <strong>username</strong> liked your photo. Lorem ipsum
-                      dolor sit amet, consectetur adipiscing elit. Sed do
-                      eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua.
+                    <Typography sx={{fontWeight: 700, color: "#ffffff"}}>
+                      {section.label}
                     </Typography>
+                    {[...(section.data || [])]?.map((post, index) => {
+                      return (
+                        <Box
+                          key={`noti-item-${index}`}
+                          sx={{
+                            position: "relative",
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 2,
+                          }}
+                        >
+                          <>
+                            <AvatarUI
+                              profileImage={post.profileImage}
+                              isFinal={false}
+                              isPrivate={false}
+                              size={"small"}
+                            />
+                            <Typography
+                              sx={{
+                                fontSize: 14,
+                                color: "#ffffff",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                width: post.profileImage ? "50%" : "80%",
+                              }}
+                            >
+                              <strong>{post.userName}</strong> {post.name}
+                            </Typography>
+                          </>
+                          {post.profileImage && (
+                            <Box
+                              component="img"
+                              src={post.profileImage}
+                              alt="Post"
+                              sx={{
+                                width: "20%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: 2,
+                              }}
+                            />
+                          )}
+                        </Box>
+                      );
+                    })}
                   </>
-                  {true && (
-                    <Box
-                      component="img"
-                      src={
-                        "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png"
-                      }
-                      alt="Post"
-                      sx={{
-                        width: "20%",
-                        height: "100%",
-                        objectFit: "cover",
-                        borderRadius: 2,
-                      }}
-                    />
-                  )}
-                </Box>
-              );
-            })}
+                )}
+              </Box>
+            ))}
           </Box>
-          {/* Today */}
         </Box>
       </Box>
     </Drawer>

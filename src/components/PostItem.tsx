@@ -5,7 +5,7 @@ import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import SmartDisplayRoundedIcon from "@mui/icons-material/SmartDisplayRounded";
 import {Box, Typography} from "@mui/material";
 import React, {useState} from "react";
-import type {Post as PostType} from "../types";
+import type {PostItem} from "../store/slices/post/types";
 import {formatNumber} from "../utils/helpers";
 
 /**
@@ -28,10 +28,10 @@ import {formatNumber} from "../utils/helpers";
  */
 
 interface PostItemProps {
-  post: PostType;
+  post: PostItem;
   typePost?: "posts" | "reels" | "saved" | "tagged";
-  typeImage?: "album" | "image" | "video";
-  onClickPostItem?: (post: PostType) => void;
+  typeImage?: "image" | "video";
+  onClickPostItem?: (post: PostItem) => void;
 }
 
 const PostItem: React.FC<PostItemProps> = ({
@@ -85,7 +85,7 @@ const PostItem: React.FC<PostItemProps> = ({
           <>
             <RemoveRedEyeOutlinedIcon sx={{fontSize: "2rem"}} />
             <Typography sx={{fontSize: "0.875rem", fontWeight: 600}}>
-              {formatNumber(post.likes)}
+              {formatNumber(post.reactions.likes)}
             </Typography>
           </>
         )}
@@ -122,7 +122,7 @@ const PostItem: React.FC<PostItemProps> = ({
       {/* Image/Video */}
       <Box
         component="img"
-        src={post?.images?.[0]}
+        src={post?.imageVDO || post?.imagePost?.[0]}
         alt="Post"
         sx={{
           width: "100%",
@@ -174,7 +174,7 @@ const PostItem: React.FC<PostItemProps> = ({
           >
             <FavoriteRoundedIcon sx={{fontSize: "2rem"}} />
             <Typography sx={{fontSize: "0.875rem", fontWeight: 600}}>
-              {formatNumber(post.likes)}
+              {formatNumber(post.reactions.likes)}
             </Typography>
           </Box>
 
@@ -190,7 +190,7 @@ const PostItem: React.FC<PostItemProps> = ({
           >
             <ModeCommentRoundedIcon sx={{fontSize: "2rem"}} />
             <Typography sx={{fontSize: "0.875rem", fontWeight: 600}}>
-              {formatNumber(post.comments)}
+              {formatNumber(post.reactions.dislikes)}
             </Typography>
           </Box>
         </Box>

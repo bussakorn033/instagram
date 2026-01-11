@@ -2,6 +2,10 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import {Box, InputAdornment, TextField} from "@mui/material";
 import React from "react";
+import {useSelector} from "react-redux";
+import type {RootState} from "../store";
+import {randomNumber} from "../utils/helpers";
+import AvatarContain from "./AvatarContain";
 
 /**
  * SearchBar Component
@@ -27,6 +31,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
+  const {userSearchList} = useSelector((state: RootState) => state.user);
   const [query, setQuery] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -115,22 +120,28 @@ const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
           },
         }}
       />
-      {isOpen && [...Array(10)].length > 0 && (
-        <div className="search-results">
-          {[...Array(10)].map((user) => (
-            <div key={user.id} className="search-result-item">
-              <img
-                src={user.profileImage || "👤"}
-                alt={user.username}
-                className="result-avatar"
+      {isOpen && [...(userSearchList?.users || [])].length > 0 && (
+        <Box
+          sx={{display: "flex", flexDirection: "column", gap: 2, padding: 2}}
+        >
+          {[...(userSearchList?.users || [])].map((user) => (
+            <Box key={` search-result-${user?.id}`}>
+              <AvatarContain
+                isShowType={user?.toString()?.length <= 0}
+                type="search"
+                data={{
+                  userName: user?.username,
+                  profileImage: user?.image,
+                  name: `${user?.firstName} ${user?.lastName}`,
+                  size: "medium" as const,
+                  followed: [...Array(10)]?.map(
+                    () => `User ${randomNumber(1, 1000)}`
+                  ),
+                }}
               />
-              <div className="result-info">
-                <p className="result-username">{user.username}</p>
-                <p className="result-name">{user.username}</p>
-              </div>
-            </div>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
     </Box>
   );

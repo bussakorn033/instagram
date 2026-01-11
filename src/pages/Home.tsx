@@ -1,62 +1,64 @@
 import {Box, IconButton, Typography} from "@mui/material";
-import React from "react";
+import React, {useEffect} from "react";
+import {useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 import AvatarContain from "../components/AvatarContain";
 import LayoutContain from "../components/LayoutContain";
+import Loading from "../components/Loading";
 import Post from "../components/Post";
 import StorySlide from "../components/StorySlide";
-import {generateMockPosts} from "../utils/helpers";
-
-const STORY_AVATAR_CONFIG = {
-  userID: "username",
-  profileImage:
-    "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
-  isPrivate: false,
-  isFinal: false,
-  size: "free" as const,
-};
-
-const USER_AVATAR_CONFIG = {
-  userID: "me",
-  name: "me me me me me me me me me me",
-  profileImage:
-    "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png",
-  isPrivate: false,
-  isFinal: false,
-  size: "medium" as const,
-  followed: Array.from(
-    {length: 9},
-    (_, i) => `user user user user user ${i + 1}`
-  ),
-};
-
-const SUGGEST_USER_CONFIG = {
-  userID: "username" as string,
-  name: "suggested user" as string,
-  profileImage:
-    "https://thumb.izcene.com/mcneto/image/96dd0e4929d3cca4ae2168a973669c33.png" as string,
-  isPrivate: undefined,
-  isFinal: undefined,
-  size: "medium" as const,
-  followed: Array.from(
-    {length: 9},
-    (_, i) => `user user user user user ${i + 1}`
-  ),
-};
+import {USER_ID} from "../constants";
+import {useAppDispatch, useInfiniteScroll} from "../hooks";
+import type {RootState} from "../store";
+import {setPostListSkip} from "../store/slices/post";
+import {getPostList} from "../store/slices/post/thunks";
+import type {PostItem} from "../store/slices/post/types";
+import {
+  convertStringToNumber,
+  imageRandom,
+  randomNumber,
+} from "../utils/helpers";
 
 const Home: React.FC = () => {
-  const posts = React.useMemo(() => generateMockPosts(10), []);
-  const storyAvatars = React.useMemo(
-    () => Array.from({length: 20}, () => STORY_AVATAR_CONFIG),
-    []
-  );
-  const suggestedUsers = React.useMemo(
-    () => Array.from({length: 5}, () => SUGGEST_USER_CONFIG),
-    []
-  );
+  const dispatch = useAppDispatch();
+  const navigation = useNavigate();
+  const {postList} = useSelector((state: RootState) => state.post);
 
   const handleActionSeeAllFriend = () => {
     console.log("See All Friend");
   };
+
+  const getPostListData = async () => {
+    await dispatch(
+      getPostList({
+        limit: 10,
+        skip: postList?.skip || 0,
+      })
+    );
+  };
+
+  useEffect(() => {
+    getPostListData();
+  }, [postList?.skip]);
+
+  // Infinite scroll hook for loading more posts
+  const {isLoading} = useInfiniteScroll(
+    () => {
+      // Check if there are more posts to load
+      if (
+        (postList?.skip || 0) * (postList?.limit || 10) <
+        (postList?.total || 0)
+      ) {
+        console.log("load more posts...");
+        dispatch(setPostListSkip((postList?.skip || 0) + 1));
+      }
+    },
+    {
+      threshold: 500,
+      delay: 500,
+      enabled: true,
+    }
+  );
 
   return (
     <LayoutContain sx={{paddingY: 2}}>
@@ -71,24 +73,44 @@ const Home: React.FC = () => {
         {/* Feed */}
         <Box
           sx={{
+            position: "relative",
             width: "50%",
             "@media (max-width: 1023px)": {
               width: "90%",
             },
+            color: "#ffffff",
           }}
         >
           <Box sx={{display: "flex", flexDirection: "column", gap: 4}}>
             {/* Stories */}
             <StorySlide
-              dataList={storyAvatars}
-              handleAction={(isFriend) => {
-                console.log("isFriend", isFriend);
+              dataList={
+                [...(postList?.posts?.slice(0, 39) || [])]?.map((post) => ({
+                  userName: post.userName || "",
+                  profileImage: post.imageProfile || "",
+                  isPrivate: false,
+                  isFinal: false,
+                  size: "free",
+                })) || []
+              }
+              handleAction={(data: {
+                userName: string;
+                profileImage: string;
+                isPrivate?: boolean;
+                isFinal?: boolean;
+                size?: "small" | "medium" | "large" | "free";
+              }) => {
+                navigation(
+                  `/profile/${convertStringToNumber(
+                    data?.userName?.toString()
+                  )}`
+                );
               }}
             />
             {/* Stories */}
-
             {/* Posts */}
             <Box
+              id="container-post-home-page"
               sx={{
                 width: "100%",
                 display: "flex",
@@ -98,19 +120,22 @@ const Home: React.FC = () => {
                 gap: 2,
               }}
             >
-              {posts.map((post, index) => (
-                <Box
-                  key={`post-box-${index}`}
-                  sx={{
-                    width: "80%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                  }}
-                >
-                  <Post post={post} />
-                </Box>
-              ))}
+              {[...(postList?.posts || [])]?.map(
+                (post: PostItem, index: any) => (
+                  <Box
+                    key={`post-box-${index}`}
+                    sx={{
+                      width: "80%",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 2,
+                    }}
+                  >
+                    <Post post={post} />
+                  </Box>
+                )
+              )}
+              {isLoading && <Loading id={`loading-home-page`} />}
             </Box>
             {/* Posts */}
           </Box>
@@ -131,7 +156,19 @@ const Home: React.FC = () => {
         >
           {/* Current User */}
           <Box>
-            <AvatarContain type="user" data={USER_AVATAR_CONFIG} />
+            <AvatarContain
+              type="user"
+              data={{
+                userName: `User ${USER_ID}`,
+                profileImage: imageRandom(USER_ID, "icon"),
+                name: `My name ${USER_ID}`,
+                size: "medium" as const,
+                isFinal: false,
+                followed: [...Array(10)]?.map(
+                  () => `User ${randomNumber(1, 1000)}`
+                ),
+              }}
+            />
           </Box>
 
           {/* Suggestions Header */}
@@ -181,9 +218,22 @@ const Home: React.FC = () => {
           </Box>
 
           {/* Suggested Users */}
-          {suggestedUsers.map((user, index) => (
+          {[...(postList?.posts || [])]?.splice(1, 5)?.map((post, index) => (
             <Box key={`suggest-friend-${index}`} sx={{marginBottom: 2}}>
-              <AvatarContain data={user} />
+              <AvatarContain
+                data={{
+                  userName: post.userName || "",
+                  profileImage: post.imageProfile || "",
+                  name: post.userName || "",
+                  isFriend: false,
+                  isPrivate: undefined,
+                  isFinal: undefined,
+                  size: "medium" as const,
+                  followed: [...Array(10)]?.map(
+                    () => `User ${randomNumber(1, 1000)}`
+                  ),
+                }}
+              />
             </Box>
           ))}
         </Box>
