@@ -27,7 +27,7 @@ import {useCallback, useEffect, useState} from "react";
  * const { isLoading } = useInfiniteScroll(() => {
  *   console.log("Load more posts");
  *   dispatch(getMorePosts());
- * }, { threshold: 500, delay: 1000 });
+ * }, { threshold: 500, delay: 500 });
  *
  * return isLoading ? <Loading /> : null;
  */

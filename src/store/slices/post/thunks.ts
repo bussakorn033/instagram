@@ -45,31 +45,3 @@ export const getPostByIdList = createAsyncThunk(
     }
   }
 );
-
-/** Get comment list */
-export const getCommentByIdList = createAsyncThunk(
-  "posts/getCommentByIdList",
-  async (
-    {
-      id,
-      limit = 10,
-      skip = 0,
-    }: {
-      id: number | string;
-      limit: number | string;
-      skip: number | string;
-    },
-    {rejectWithValue}
-  ) => {
-    try {
-      const response = await apiClient.get(
-        `/posts/${id}/comments?limit=${limit}&skip=${skip}`
-      );
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.error || "Failed to get posts"
-      );
-    }
-  }
-);

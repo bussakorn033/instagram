@@ -7,7 +7,7 @@ import {
   randomNumber,
 } from "../../../utils/helpers";
 import {initialState} from "./initialState";
-import {getCommentByIdList, getPostByIdList, getPostList} from "./thunks";
+import {getPostByIdList, getPostList} from "./thunks";
 import type {Post, PostItem} from "./types";
 
 /* ==================== Slice ==================== */
@@ -101,37 +101,47 @@ const postSlice = createSlice({
       .addCase(getPostByIdList.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.postByIdList = {
+          ...action.payload,
           posts: [
             ...(state.postByIdList?.posts || []),
-            ...action.payload.posts,
+            ...action.payload.posts?.map((post: PostItem) => ({
+              ...post,
+              userName: `user${post.userId}`,
+              name: `User ${post.userId}`,
+              imageProfile: imageRandom(`user${post.userId}`, "icon"),
+              imagePost:
+                post?.userId % 2 === 0
+                  ? [...Array(randomNumber(1, 10)).keys()].map(() =>
+                      imageRandom(randomNumber(1, 50), "recipe")
+                    )
+                  : undefined,
+              imageVDO:
+                post?.userId % 2 !== 0
+                  ? imageRandom(randomNumber(1, 50), "recipe")
+                  : undefined,
+              atDate: randomDateTime(),
+              location:
+                post?.userId % randomNumber(1, 3) === 0
+                  ? randomLocation()
+                  : undefined,
+              music:
+                post?.userId % randomNumber(1, 3) === 0
+                  ? randomMusic()
+                  : undefined,
+              album:
+                post?.userId % 2 === 0 ? `Album ${post.userId}` : undefined,
+              albumImages:
+                post?.userId % 2 === 0
+                  ? [...Array(randomNumber(2, 10)).keys()].map(() =>
+                      imageRandom(randomNumber(1, 50), "recipe")
+                    )
+                  : undefined,
+            })),
           ],
-          ...action.payload,
         };
         state.error = null;
       })
       .addCase(getPostByIdList.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string;
-      });
-
-    /* ===== GET COMMENT LIST ===== */
-    builder
-      .addCase(getCommentByIdList.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(getCommentByIdList.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.commentByIdList = {
-          comments: [
-            ...(state.commentByIdList?.comments || []),
-            ...action.payload.comments,
-          ],
-          ...action.payload,
-        };
-        state.error = null;
-      })
-      .addCase(getCommentByIdList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });

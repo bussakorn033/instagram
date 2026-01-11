@@ -73,6 +73,9 @@ const PostItem: React.FC<PostItemProps> = ({
           gap: 1,
           color: "#ffffff",
           zIndex: 10,
+          "@media (max-width: 1023px)": {
+            transform: "scale(0.8)",
+          },
         }}
       >
         {typePost === "saved" ? (
@@ -106,6 +109,9 @@ const PostItem: React.FC<PostItemProps> = ({
           gap: 1,
           color: "#ffffff",
           zIndex: 10,
+          "@media (max-width: 1023px)": {
+            transform: "scale(0.8)",
+          },
         }}
       >
         {typeImage === "video" ? (
@@ -149,8 +155,10 @@ const PostItem: React.FC<PostItemProps> = ({
             alignItems: "center",
             gap: 4,
             animation: "fadeIn 0.2s ease-in-out",
+            zoom: 0.8,
             "@media (max-width: 1023px)": {
               flexDirection: "column",
+              zoom: 1.1,
               gap: 1,
               ">div": {
                 transform: "scale(0.6)",

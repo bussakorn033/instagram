@@ -189,6 +189,12 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
           backgroundColor: "#0B1013",
           opacity: 1,
           padding: 2,
+          position: "fixed",
+          overflowY: "auto",
+          "::-webkit-scrollbar": {
+            width: 0,
+            height: 0,
+          },
         }}
       >
         <Typography sx={{fontWeight: 700, color: "#ffffff", fontSize: 24}}>
@@ -292,9 +298,15 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
             }}
           >
             {[
-              {label: "Today", data: notificationsToday},
-              {label: "This Week", data: notificationsThisWeek},
-              {label: "This Month", data: notificationsThisMonth},
+              notificationsToday && {label: "Today", data: notificationsToday},
+              notificationsThisWeek && {
+                label: "This Week",
+                data: notificationsThisWeek,
+              },
+              notificationsThisMonth && {
+                label: "This Month",
+                data: notificationsThisMonth,
+              },
             ]?.map((section, sectionIndex) => (
               <Box
                 key={`noti-section-${sectionIndex}`}
@@ -308,12 +320,12 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
                     width: "calc(100% + 32px)",
                   }}
                 />
-                {section.data && section.data.length > 0 && (
+                {section?.data && section?.data.length > 0 && (
                   <>
                     <Typography sx={{fontWeight: 700, color: "#ffffff"}}>
-                      {section.label}
+                      {section?.label}
                     </Typography>
-                    {[...(section.data || [])]?.map((post, index) => {
+                    {[...(section?.data || [])]?.map((post, index) => {
                       return (
                         <Box
                           key={`noti-item-${index}`}

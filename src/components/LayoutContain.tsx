@@ -26,6 +26,8 @@ const LayoutContain: React.FC<LayoutContainProps> = ({children, sx}) => {
   return (
     <Box
       sx={{
+        maxWidth: 1500,
+        margin: "auto",
         minHeight: "100vh",
         width: "100%",
         display: "flex",

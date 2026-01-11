@@ -4,7 +4,6 @@ export type RequestStatus = "idle" | "loading" | "succeeded" | "failed";
 export interface PostState {
   postList: Post | null;
   postByIdList: Post | null;
-  commentByIdList: Comment | null;
   status: RequestStatus;
   error: string | null;
 }

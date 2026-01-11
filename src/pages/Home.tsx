@@ -51,6 +51,9 @@ const Home: React.FC = () => {
       ) {
         console.log("load more posts...");
         dispatch(setPostListSkip((postList?.skip || 0) + 1));
+      } else {
+        // console.log("no more posts to load");
+        dispatch(setPostListSkip(0));
       }
     },
     {

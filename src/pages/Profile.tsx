@@ -22,6 +22,7 @@ import LayoutContain from "../components/LayoutContain";
 import Loading from "../components/Loading";
 import PostItem from "../components/PostItem";
 import StorySlide from "../components/StorySlide";
+import {USER_ID} from "../constants";
 import {useAppDispatch, useInfiniteScroll} from "../hooks";
 import type {RootState} from "../store"; // or wherever your store is configured
 import {setPostByIdListSkip} from "../store/slices/post";
@@ -42,42 +43,59 @@ const Profile: React.FC = () => {
   const [tabValue, setTabValue] = useState("posts");
   const [isLiked, setIsLiked] = useState(false);
   const IMAGE_PROFILE = useMemo(() => imageRandom(Number(userId), "icon"), []);
+  const PROFILE = useMemo(() => {
+    return {
+      storyList: [...Array(randomNumber(0, 39) || 0)]?.map((_, index) => ({
+        userName: `Album${index}`,
+        profileImage: imageRandom(randomNumber(1, 50), "recipe"),
+      })),
+      tabPostsList: [...Array(randomNumber(0, 39) || 0)]?.map((_, index) => ({
+        userName: `Album${index}`,
+        profileImage: imageRandom(randomNumber(1, 50), "recipe"),
+      })),
+      tabReelsList: [...Array(randomNumber(0, 39) || 0)]?.map((_, index) => ({
+        userName: `Album${index}`,
+        profileImage: imageRandom(randomNumber(1, 50), "recipe"),
+      })),
+      tabSavedList: [...Array(randomNumber(0, 39) || 0)]?.map((_, index) => ({
+        userName: `Album${index}`,
+        profileImage: imageRandom(randomNumber(1, 50), "recipe"),
+      })),
+      tabTaggedList: [...Array(randomNumber(0, 39) || 0)]?.map((_, index) => ({
+        userName: `Album${index}`,
+        profileImage: imageRandom(randomNumber(1, 50), "recipe"),
+      })),
+      postsCount: randomNumber(0, 9000),
+      followersCount: randomNumber(0, 9000),
+      followingCount: randomNumber(0, 9000),
+    };
+  }, []);
 
-  const tabImage: Record<
-    "story" | "posts" | "reels" | "saved" | "tagged",
-    {image: string[]}
-  > = {
-    story: {
-      image: [...Array(randomNumber(1, 29))].map(() =>
-        imageRandom(randomNumber(1, 50), "recipe")
-      ),
+  const TAB_LIST: Array<{
+    label: string;
+    icon: React.ReactElement;
+    list: Array<{userName: string; profileImage: string}>;
+  }> = [
+    {label: "posts", icon: <GridOnRoundedIcon />, list: PROFILE.tabPostsList},
+    {
+      label: "reels",
+      icon: <OndemandVideoRoundedIcon />,
+      list: PROFILE.tabReelsList,
     },
-    posts: {
-      image: [...Array(randomNumber(0, 100))].map(() =>
-        imageRandom(randomNumber(1, 50), "recipe")
-      ),
+    {
+      label: "saved",
+      icon: <BookmarkBorderRoundedIcon />,
+      list: PROFILE.tabSavedList,
     },
-    reels: {
-      image: [...Array(randomNumber(0, 100))].map(() =>
-        imageRandom(randomNumber(1, 50), "recipe")
-      ),
+    {
+      label: "tagged",
+      icon: <PortraitRoundedIcon />,
+      list: PROFILE.tabTaggedList,
     },
-    saved: {
-      image: [...Array(randomNumber(0, 100))].map(() =>
-        imageRandom(randomNumber(1, 50), "recipe")
-      ),
-    },
-    tagged: {
-      image: [...Array(randomNumber(0, 100))].map(() =>
-        imageRandom(randomNumber(1, 50), "recipe")
-      ),
-    },
-  };
-  console.log(`---- ~ Profile ~ tabImage:`, tabImage);
+  ];
 
   const handleFollow = () => {};
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
-    console.log(`---- ~ handleTabChange ~ event:`, event);
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setTabValue(newValue);
   };
 
@@ -93,7 +111,7 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     getPostByIdListData();
-  }, [postByIdList?.skip]);
+  }, [postByIdList?.skip, userId]);
 
   // Infinite scroll hook for loading more posts
   const {isLoading} = useInfiniteScroll(
@@ -109,7 +127,7 @@ const Profile: React.FC = () => {
     },
     {
       threshold: 500,
-      delay: 1000,
+      delay: 500,
       enabled: true,
     }
   );
@@ -125,7 +143,7 @@ const Profile: React.FC = () => {
     ) {
       setIsLiked(true);
     }
-  }, [postByIdList?.posts?.[0]?.reactions?.likes]);
+  }, [postByIdList?.posts?.length]);
 
   return (
     <LayoutContain
@@ -231,7 +249,7 @@ const Profile: React.FC = () => {
               }}
             >
               <Typography noWrap={true} sx={{color: "#ffffff", fontSize: 20}}>
-                {postByIdList?.posts[0]?.userId || "Unknown"}
+                User {userId || "Unknown"}
               </Typography>
 
               <Box sx={{display: "flex", gap: 1}}>
@@ -250,6 +268,7 @@ const Profile: React.FC = () => {
                     minHeight: "32px",
                     py: 0.5,
                     px: 2,
+                    textWrapMode: "nowrap",
                     ":hover, :focus, :focus-visible": {
                       transform: "scale(1)",
                       outline: "none",
@@ -257,7 +276,11 @@ const Profile: React.FC = () => {
                     },
                   }}
                 >
-                  {isLiked ? "Following" : "Follow"}
+                  {Number(userId) === USER_ID
+                    ? "Edit profile"
+                    : isLiked
+                    ? "Following"
+                    : "Follow"}
                 </Button>
 
                 <Button
@@ -275,6 +298,7 @@ const Profile: React.FC = () => {
                     minHeight: "32px",
                     py: 0.5,
                     px: 2,
+                    textWrapMode: "nowrap",
                     ":hover, :focus, :focus-visible": {
                       transform: "scale(1)",
                       outline: "none",
@@ -282,7 +306,7 @@ const Profile: React.FC = () => {
                     },
                   }}
                 >
-                  Message
+                  {Number(userId) === USER_ID ? "View archive" : "Message"}
                 </Button>
 
                 <Button
@@ -330,7 +354,7 @@ const Profile: React.FC = () => {
                   noWrap={true}
                   sx={{fontSize: 16, fontWeight: 700, color: "#ffffff"}}
                 >
-                  {formatNumber(postByIdList?.posts?.[0]?.views || 0)}
+                  {formatNumber(PROFILE.postsCount || 0)}
                 </Typography>
                 <Typography noWrap={true} sx={{fontSize: 16, color: "#ffffff"}}>
                   Posts
@@ -348,9 +372,7 @@ const Profile: React.FC = () => {
                   noWrap={true}
                   sx={{fontSize: 16, fontWeight: 700, color: "#ffffff"}}
                 >
-                  {formatNumber(
-                    postByIdList?.posts?.[0]?.reactions?.likes || 0
-                  )}
+                  {formatNumber(PROFILE.followersCount || 0)}
                 </Typography>
                 <Typography noWrap={true} sx={{fontSize: 16, color: "#ffffff"}}>
                   Followers
@@ -368,9 +390,7 @@ const Profile: React.FC = () => {
                   noWrap={true}
                   sx={{fontSize: 16, fontWeight: 700, color: "#ffffff"}}
                 >
-                  {formatNumber(
-                    postByIdList?.posts?.[0]?.reactions?.likes || 0
-                  )}
+                  {formatNumber(PROFILE.followingCount || 0)}
                 </Typography>
                 <Typography noWrap={true} sx={{fontSize: 16, color: "#ffffff"}}>
                   Following
@@ -419,9 +439,9 @@ const Profile: React.FC = () => {
       >
         <StorySlide
           spaceBetween={2}
-          dataList={[tabImage["story"]]?.map(() => ({
-            userName: `<3`,
-            profileImage: imageRandom(randomNumber(1, 50), "recipe"),
+          dataList={[...PROFILE.storyList]?.map((item) => ({
+            userName: item.userName,
+            profileImage: item.profileImage,
             isPrivate: false,
             isFinal: false,
             size: "free",
@@ -480,6 +500,7 @@ const Profile: React.FC = () => {
               minWidth: "50px !important",
               maxWidth: "50px !important",
               mx: 5,
+
               "@media (max-width: 1023px)": {
                 mx: 5,
               },
@@ -494,12 +515,7 @@ const Profile: React.FC = () => {
             },
           }}
         >
-          {[
-            {label: "posts", icon: <GridOnRoundedIcon />},
-            {label: "reels", icon: <OndemandVideoRoundedIcon />},
-            {label: "saved", icon: <BookmarkBorderRoundedIcon />},
-            {label: "tagged", icon: <PortraitRoundedIcon />},
-          ].map((tab, index) => (
+          {[...(TAB_LIST || [])].map((tab, index) => (
             <Tab
               key={`tab-profile-${index}`}
               icon={tab.icon}
@@ -577,8 +593,8 @@ const Profile: React.FC = () => {
               },
             }}
           >
-            {tabImage?.[tabValue as keyof typeof tabImage]?.image
-              ?.map((post, index) => {
+            {TAB_LIST.filter((item) => item.label === tabValue)?.[0]
+              ?.list?.map((post, index) => {
                 return {
                   id: randomNumber(0, 100000),
                   title: "",
@@ -592,30 +608,9 @@ const Profile: React.FC = () => {
                   userId: randomNumber(0, 100000),
                   userName: "",
                   name: "",
-                  imageProfile: post,
-                  imagePost:
-                    index % 2 === 0
-                      ? tabImage?.[
-                          tabValue as keyof typeof tabImage
-                        ]?.image?.splice(
-                          randomNumber(
-                            0,
-                            tabImage?.[tabValue as keyof typeof tabImage]?.image
-                              ?.length - 1
-                          ),
-                          1
-                        )
-                      : undefined,
-                  imageVDO:
-                    index % 2 !== 0
-                      ? tabImage?.[tabValue as keyof typeof tabImage]?.image?.[
-                          randomNumber(
-                            0,
-                            tabImage?.[tabValue as keyof typeof tabImage]?.image
-                              ?.length - 1
-                          )
-                        ]
-                      : undefined,
+                  imageProfile: IMAGE_PROFILE,
+                  imagePost: index % 2 === 0 ? [post.profileImage] : undefined,
+                  imageVDO: index % 2 !== 0 ? post.profileImage : undefined,
                   atDate: randomDateTime(),
                   location:
                     index % randomNumber(1, 3) === 0
@@ -631,34 +626,35 @@ const Profile: React.FC = () => {
                       : undefined,
                   albumImages:
                     index % randomNumber(1, 3) === 0
-                      ? [
-                          tabImage?.[tabValue as keyof typeof tabImage]
-                            ?.image?.[
-                            randomNumber(
-                              0,
-                              tabImage?.[tabValue as keyof typeof tabImage]
-                                ?.image?.length - 1
-                            )
-                          ],
-                        ]
+                      ? [...Array(randomNumber(1, 5))].map(() =>
+                          imageRandom(
+                            randomNumber(1, 50),
+                            "text",
+                            undefined,
+                            undefined,
+                            index.toString()
+                          )
+                        )
                       : undefined,
                 };
               })
-              ?.map((item, index) => (
-                <Box key={`post-item-${tabValue}-${index}`}>
-                  <PostItem
-                    post={item}
-                    typePost={
-                      tabValue === "posts" || tabValue === "tagged"
-                        ? "posts"
-                        : tabValue === "reels"
-                        ? "reels"
-                        : "saved"
-                    }
-                    typeImage={item?.imageVDO ? "video" : "image"}
-                  />
-                </Box>
-              ))}
+              ?.map((item, index) => {
+                return (
+                  <Box key={`post-item-${tabValue}-${index}`}>
+                    <PostItem
+                      post={item}
+                      typePost={
+                        tabValue === "posts" || tabValue === "tagged"
+                          ? "posts"
+                          : tabValue === "reels"
+                          ? "reels"
+                          : "saved"
+                      }
+                      typeImage={item?.imageVDO ? "video" : "image"}
+                    />
+                  </Box>
+                );
+              })}
           </Box>
           {/* Posts */}
         </>
