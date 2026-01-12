@@ -70,56 +70,72 @@ const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
         },
       }}
     >
-      <TextField
-        fullWidth
-        placeholder="Search users..."
-        value={query}
-        onChange={(e) => handleSearch(e.target.value)}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchRoundedIcon sx={{color: "#A0A0A0"}} />
-              </InputAdornment>
-            ),
-            endAdornment: query ? (
-              <InputAdornment position="end">
-                <CloseRoundedIcon
-                  onClick={handleClose}
-                  sx={{
-                    color: "#A0A0A0",
-                    cursor: "pointer",
-                    ":hover": {
-                      color: "#FFFFFF",
-                    },
-                  }}
-                />
-              </InputAdornment>
-            ) : null,
-          },
-        }}
+      <Box
         sx={{
-          "& .MuiOutlinedInput-root": {
-            backgroundColor: "#25292F",
-            color: "#FFFFFF",
-            borderRadius: "100px",
-          },
-          "& .MuiOutlinedInput-root:hover": {
-            backgroundColor: "#25292F",
-            color: "#FFFFFF",
-            borderRadius: "100px",
-            outline: "none",
-          },
-          "& .Mui-focused": {
-            backgroundColor: "#25292F !important",
-            color: "#FFFFFF !important",
-            borderRadius: "100px",
-          },
-          ".MuiInputBase-input": {
-            p: 1,
-          },
+          zIndex: 999,
+          backgroundColor: "#0B1013",
+          fontWeight: 700,
+          color: "#ffffff",
+          fontSize: 24,
+          padding: "1rem ",
+          position: "sticky",
+          top: "50px",
+          left: "-1rem",
+          right: "-1rem",
+          margin: "-1rem",
         }}
-      />
+      >
+        <TextField
+          fullWidth
+          placeholder="Search users..."
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchRoundedIcon sx={{color: "#A0A0A0"}} />
+                </InputAdornment>
+              ),
+              endAdornment: query ? (
+                <InputAdornment position="end">
+                  <CloseRoundedIcon
+                    onClick={handleClose}
+                    sx={{
+                      color: "#A0A0A0",
+                      cursor: "pointer",
+                      ":hover": {
+                        color: "#FFFFFF",
+                      },
+                    }}
+                  />
+                </InputAdornment>
+              ) : null,
+            },
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              backgroundColor: "#25292F",
+              color: "#FFFFFF",
+              borderRadius: "100px",
+            },
+            "& .MuiOutlinedInput-root:hover": {
+              backgroundColor: "#25292F",
+              color: "#FFFFFF",
+              borderRadius: "100px",
+              outline: "none",
+            },
+            "& .Mui-focused": {
+              backgroundColor: "#25292F !important",
+              color: "#FFFFFF !important",
+              borderRadius: "100px",
+            },
+            ".MuiInputBase-input": {
+              p: 1,
+            },
+          }}
+        />
+      </Box>
       {isOpen && [...(userSearchList?.users || [])].length > 0 && (
         <Box
           sx={{display: "flex", flexDirection: "column", gap: 2, padding: 2}}

@@ -17,6 +17,7 @@ import {theme} from "./theme/theme";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Sidebar from "./components/SideBar";
+import Navbar from "./components/Navbar";
 
 // Pages
 import MessageContain from "./components/MessageContain";
@@ -141,6 +142,7 @@ const AppRoutes: React.FC<{isAuthenticated: boolean}> = ({isAuthenticated}) => {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Box>
+      {isAuthenticated && <Navbar />}
     </Box>
   );
 };

@@ -1,3 +1,4 @@
+import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
 import {Box, Drawer, IconButton, Typography} from "@mui/material";
 import Divider from "@mui/material/Divider";
@@ -181,23 +182,73 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
     >
       <Box
         sx={{
+          zIndex: 9990,
           width: 300,
           height: "100%",
           display: "flex",
           flexDirection: "column",
           gap: 2,
           backgroundColor: "#0B1013",
+          borderRight: "1px solid #262626",
           opacity: 1,
           padding: 2,
           position: "fixed",
           overflowY: "auto",
+          "@media (max-width: 767px)": {
+            width: "100%",
+            minWidth: "100%",
+            maxWidth: "100%",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            borderRight: "none",
+          },
           "::-webkit-scrollbar": {
             width: 0,
             height: 0,
           },
         }}
       >
-        <Typography sx={{fontWeight: 700, color: "#ffffff", fontSize: 24}}>
+        <Typography
+          sx={{
+            zIndex: 999,
+            backgroundColor: "#0B1013",
+            fontWeight: 700,
+            color: "#ffffff",
+            fontSize: 24,
+            padding: {xs: "2rem", sm: "1rem", md: "1rem"},
+            paddingBottom: "1rem !important",
+            display: "flex",
+            gap: 2,
+            position: "sticky",
+            top: "-1rem",
+            left: "-1rem",
+            right: "-1rem",
+            margin: "-1rem",
+          }}
+        >
+          <span>
+            <IconButton
+              onClick={onClose}
+              sx={{
+                display: "flex",
+                gap: 1,
+                borderRadius: 50,
+                justifyContent: "center",
+                outline: "none",
+                border: "none",
+                color: "#ffffff",
+                ":hover, :focus, :focus-visible": {
+                  transform: "scale(1)",
+                  outline: "none",
+                  border: "none",
+                },
+              }}
+            >
+              <ArrowBackIosRoundedIcon />
+            </IconButton>
+          </span>
           Notifications
         </Typography>
 
@@ -290,6 +341,7 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
 
           <Box
             sx={{
+              width: "100%",
               position: "relative",
               display: "flex",
               flexDirection: "column",
@@ -355,6 +407,9 @@ const NotificationsContain: React.FC<NotificationsContainProps> = ({
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                                 width: post.profileImage ? "50%" : "80%",
+                                "@media (max-width: 767px)": {
+                                  width: post.profileImage ? "66%" : "90%",
+                                },
                               }}
                             >
                               <strong>{post.userName}</strong> {post.name}
