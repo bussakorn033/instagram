@@ -1,7 +1,7 @@
-import { Box, CircularProgress, CssBaseline } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
-import React, { useEffect } from "react";
-import { Provider } from "react-redux";
+import {Box, CircularProgress, CssBaseline} from "@mui/material";
+import {ThemeProvider} from "@mui/material/styles";
+import React, {useEffect} from "react";
+import {Provider} from "react-redux";
 import {
   Navigate,
   Route,
@@ -9,9 +9,9 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-import { useAppSelector } from "./hooks";
-import { store } from "./store";
-import { theme } from "./theme/theme";
+import {useAppSelector} from "./hooks";
+import {store} from "./store";
+import {theme} from "./theme/theme";
 
 // Components
 import Login from "./components/Login";

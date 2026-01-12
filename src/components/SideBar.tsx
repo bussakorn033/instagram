@@ -14,11 +14,12 @@ import {AppBar, Box, Button, Tooltip} from "@mui/material";
 import React, {useMemo, useState} from "react";
 import {Link as RouterLink} from "react-router-dom";
 import {USER_ID} from "../constants";
-import {useAppSelector} from "../hooks";
+import {useAppDispatch, useAppSelector} from "../hooks";
 import {imageRandom} from "../utils/helpers";
 import AvatarUI from "./AvatarUI";
 import NotificationsContain from "./NotificationsContain";
 import SearchContain from "./SearchContain";
+import {clearAuthToken} from "../store/slices/auth";
 
 /**
  * Sidebar Component
@@ -40,6 +41,7 @@ import SearchContain from "./SearchContain";
  */
 
 const Sidebar: React.FC = () => {
+  const dispatch = useAppDispatch();
   const IMAGE_PROFILE = useMemo(() => imageRandom(Number(USER_ID), "icon"), []);
   const [activeTab, setActiveTab] = useState<string>("Home");
   const [isShowSearch, setIsShowSearch] = useState<boolean>(false);
@@ -47,7 +49,9 @@ const Sidebar: React.FC = () => {
     useState<boolean>(false);
   const {isAuthenticated} = useAppSelector((state) => state.auth);
 
-  const handleLogout = () => {};
+  const handleLogout = () => {
+    dispatch(clearAuthToken());
+  };
 
   const navIcons = [
     {
@@ -235,6 +239,7 @@ const Sidebar: React.FC = () => {
                       "@media (max-width: 767px)": {
                         display:
                           item.label === "Home" ||
+                          item.label === "Search" ||
                           item.label === "Explore" ||
                           item.label === "Messages" ||
                           item.label === "Profile"
@@ -369,6 +374,7 @@ const Sidebar: React.FC = () => {
                 },
                 "@media (max-width: 767px)": {
                   justifyContent: "center",
+                  display: "none",
                 },
               }}
             >
