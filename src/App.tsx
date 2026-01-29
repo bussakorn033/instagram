@@ -91,7 +91,7 @@ const AppRoutes: React.FC<{isAuthenticated: boolean}> = ({isAuthenticated}) => {
           alignItems: "center",
         }}
       >
-        <MessageContain />
+        {isAuthenticated && <MessageContain />}
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
